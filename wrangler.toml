@@ -11,7 +11,7 @@ database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 # ---- 环境变量 ----
 [vars]
 ALLOWED_ORIGINS = "！修改为recrong-p绑定的域名！"
-JWT_SECRET = "一定要自己重新生成" # 一定要自己重新生成
+JWT_SECRET = "一定要自己重新生成"
 
 # ---- 定时任务 ----
 [triggers]
