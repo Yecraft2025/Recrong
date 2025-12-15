@@ -1,9 +1,5 @@
 # Recrong 🐢
 
-
-
-<div align="center">
-
 ![Recrong Logo](./recrong-p/favicon.png)
 
 **短信调度系统 | SMS Scheduling System**
