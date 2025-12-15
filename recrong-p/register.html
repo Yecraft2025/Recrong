@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <title>Recrong - Register</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #000000;
+            --primary-hover: #333333;
+            --accent: #0070f3;
+            --danger: #e00;
+            --success: #0a0;
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-main: #111;
+            --text-sub: #666;
+            --border: #eaeaea;
+            --radius: 12px;
+            --shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.08);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            /* 细腻的背景网格 */
+            background-image:
+                radial-gradient(#ddd 1px, transparent 1px),
+                radial-gradient(#ddd 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        /* 背景光斑 */
+        .bg-gradient {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0) 70%);
+            pointer-events: none; z-index: -1;
+        }
+
+        .container {
+            width: 100%; max-width: 440px; padding: 20px;
+            position: relative; z-index: 10;
+        }
+
+        /* 主卡片 */
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; transform: translateY(20px);
+        }
+        @keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
+
+        /* --- 卡片内导航栏 --- */
+        .card-nav {
+            display: flex;
+            justify-content: flex-end; /* 靠右对齐 */
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .ghost-btn {
+            background: transparent; border: none; color: var(--text-sub);
+            padding: 8px 10px; border-radius: 8px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .ghost-btn:hover { background: #f5f5f5; color: var(--text-main); transform: translateY(-1px); }
+        /* -------------------------- */
+
+        .header { margin-bottom: 32px; text-align: center; }
+        .logo {
+            width: 48px; height: 48px; margin: 0 auto 16px;
+            background: linear-gradient(135deg, #eee 0%, #fff 100%);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+        h2 { margin: 0; font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; color: #000; }
+        .subtitle { margin-top: 8px; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; }
+
+        .form-group { margin-bottom: 24px; position: relative; }
+
+        /* 标签行布局：包含 Label 和 帮助链接 */
+        .label-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
+        }
+        label {
+            font-size: 0.85rem; font-weight: 600; color: var(--text-main);
+            text-transform: uppercase; letter-spacing: 0.04em; margin: 0;
+        }
+        /* 帮助链接样式 */
+        .help-link {
+            font-size: 0.8rem; color: var(--accent); text-decoration: none;
+            display: flex; align-items: center; gap: 4px; font-weight: 500;
+        }
+        .help-link:hover { text-decoration: underline; }
+
+        /* 使用 Textarea 替代 Input */
+        textarea {
+            width: 100%; padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #fff;
+            font-size: 0.95rem; line-height: 1.5; color: #000;
+            transition: all 0.2s ease;
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.01);
+            resize: none; /* 禁止手动拖动大小 */
+            font-family: 'SF Mono', 'Roboto Mono', monospace; /* 使用等宽字体方便看链接 */
+            min-height: 80px; /* 默认高度 */
+            word-break: break-all; /* 强制换行，防止长链接撑破 */
+        }
+        textarea:focus { border-color: var(--text-main); box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+        textarea.invalid { border-color: var(--danger); background: #fff0f0; }
+
+        .helper-text {
+            font-size: 0.75rem; color: #999; margin-top: 8px;
+            display: flex; align-items: flex-start; gap: 4px;
+            line-height: 1.4; word-break: break-all; /* 允许提示文本换行 */
+        }
+
+        /* --- 协议勾选样式 --- */
+        .checkbox-group {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 20px; font-size: 0.9rem; color: var(--text-sub);
+        }
+        .checkbox-group input {
+            width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary);
+        }
+        .checkbox-group label { text-transform: none; font-weight: 400; margin: 0; cursor: pointer; display: inline; }
+        .checkbox-group a {
+            color: var(--primary); text-decoration: none; font-weight: 600;
+        }
+        .checkbox-group a:hover { text-decoration: underline; }
+        /* -------------------------- */
+
+        .btn-submit {
+            width: 100%; padding: 14px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem; font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-submit:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
+        .btn-submit:disabled { opacity: 0.6; cursor: wait; }
+
+        /* 底部链接 */
+        .footer-link {
+            text-align: center; margin-top: 24px; font-size: 0.9rem;
+        }
+        .footer-link a {
+            color: var(--text-sub); text-decoration: none; transition: color 0.2s;
+        }
+        .footer-link a:hover { color: var(--accent); text-decoration: underline; }
+
+        /* Toast 样式优化 */
+        #toast-container { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; }
+        .toast {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            padding: 12px 24px; border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            font-size: 0.9rem; font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05);
+            animation: toastSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: all;
+        }
+        .toast.error { color: var(--danger); border-color: rgba(238, 0, 0, 0.1); }
+        .toast.success { color: var(--success); border-color: rgba(0, 170, 0, 0.1); }
+        .toast.info { color: var(--accent); }
+
+        @keyframes toastSlide { from { transform: translateY(-20px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        /* 移动端适配 */
+        @media (max-width: 480px) {
+            .card { padding: 30px 20px; box-shadow: none; border: none; background: transparent; }
+        }
+    </style>
+    <script src="/config.js?v=1.0.1"></script>
+    <script src="/i18n.js?v=1.0.1"></script>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+    <div id="toast-container"></div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-nav">
+                <button class="ghost-btn" onclick="toggleLanguage()">
+                    <span style="font-size:1rem; margin-right:4px;">🌐</span>
+                    <span id="langLabel" style="font-weight:600">EN</span>
+                </button>
+            </div>
+
+            <div class="header">
+                <div class="logo">✨</div>
+                <h2 data-i18n="register_title">Create Account</h2>
+                <div class="subtitle" data-i18n="register_desc">Enter your SMS API link to start.</div>
+            </div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="smsApi" data-i18n="label_sms_api">SMS API Link</label>
+                        <a href="./tutorial.html#chapter2" target="_blank" class="help-link">
+                            <span data-i18n="link_how_to_get">How to get API?</span> ↗
+                        </a>
+                    </div>
+
+                    <textarea id="smsApi" name="smsApi" required
+                           data-i18n-placeholder="ph_sms_api"
+                           placeholder="https://..."
+                           spellcheck="false" autocomplete="off"></textarea>
+
+                    <!-- 动态提示 -->
+                    <div class="helper-text">
+                        <svg style="flex-shrink:0; margin-top:2px;" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <span id="apiFormatHelper">Loading format...</span>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agreeTos">
+                    <label for="agreeTos">
+                        <span data-i18n="label_agree">I have read and agree to the</span>
+                        <a href="/tos.html" target="_blank" data-i18n="link_tos">Terms of Service</a>
+                    </label>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-submit">
+                    <span data-i18n="btn_get_code">Get Code</span>
+                </button>
+
+                <div class="footer-link">
+                    <a href="/login.html" data-i18n="link_to_login">Already have an account? Log in</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Toast Function
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            // Icon selection
+            let icon = 'ℹ️';
+            if (type === 'error') icon = '✕';
+            if (type === 'success') icon = '✓';
+
+            toast.innerHTML = `<span style="font-weight:bold; font-size:1.1em; line-height:1">${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Logic
+        (function() {
+            if (localStorage.getItem('userPermissions')) {
+                window.location.href = '/dashboard.html';
+            }
+            // Remove error class on input
+            document.getElementById('smsApi').addEventListener('input', function() {
+                this.classList.remove('invalid');
+            });
+
+            // 动态生成 Format 提示
+            const domain = (typeof SMS_API_DOMAIN !== 'undefined') ? SMS_API_DOMAIN : 'sms.api.yecraft.com';
+            document.getElementById('apiFormatHelper').textContent =
+                `Format: https://${domain}/sms/send/372xxxx?apikey=...`;
+
+        })();
+
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const inputEl = document.getElementById('smsApi');
+            const submitBtn = document.getElementById('submitBtn');
+            const tosCheckbox = document.getElementById('agreeTos');
+            const smsApi = inputEl.value.trim();
+
+            // 校验用户协议
+            if (!tosCheckbox.checked) {
+                showToast(t('msg_must_agree'), 'error');
+                tosCheckbox.focus();
+                return;
+            }
+
+            const domain = (typeof SMS_API_DOMAIN !== 'undefined') ? SMS_API_DOMAIN : 'sms.api.yecraft.com';
+            // 转义域名中的点号 . -> \.
+            const escapedDomain = domain.replace(/\./g, '\\.');
+
+            // 允许输入框包含换行符，正则校验时先去掉换行
+            const cleanApi = smsApi.replace(/\s/g, '');
+
+            const pattern = `^https://${escapedDomain}/sms/send/(372\\d{8})\\?apikey=([A-Z0-9]{24})&from=(372\\d{8})&body=Your\\+test\\+message$`;
+            const urlRegex = new RegExp(pattern);
+
+            const match = cleanApi.match(urlRegex);
+
+            if (!match) {
+                inputEl.classList.add('invalid');
+                showToast(t('msg_api_fmt_err'), 'error');
+                return;
+            }
+
+            const sendNumber = match[1];
+            const fromNumber = match[3];
+
+            if (sendNumber !== fromNumber) {
+                inputEl.classList.add('invalid');
+                showToast(t('msg_api_fmt_err'), 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.textContent = t('msg_requesting_code');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // 发送去除空格后的 API 链接
+                    body: JSON.stringify({ smsApi: cleanApi }),
+                });
+
+                if (response.ok) {
+                    showToast(t('msg_code_sent') + ' ' + sendNumber, 'success');
+                    setTimeout(() => window.location.href = `/verify.html?phone=${sendNumber}`, 1000);
+                    return;
+                }
+
+                const result = await response.json();
+                const errorMsg = result.code ? t(result.code) : result.error;
+
+                switch (result.code) {
+                    case 'USER_ALREADY_EXISTS':
+                        showToast(errorMsg, 'info');
+                        setTimeout(() => window.location.href = '/login.html', 1500);
+                        break;
+                    case 'VERIFICATION_CODE_ACTIVE':
+                        showToast(errorMsg, 'info');
+                        setTimeout(() => window.location.href = `/verify.html?phone=${sendNumber}`, 1500);
+                        break;
+                    default:
+                        showToast(errorMsg, 'error');
+                        inputEl.classList.add('invalid');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                }
+            } catch (err) {
+                console.error(err);
+                showToast(t('msg_network_error'), 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    </script>
+</body>
+</html>

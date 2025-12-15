@@ -1,0 +1,14 @@
+{
+  "configVersion": 1,
+  "deployment": {
+    "kvNamespaces": [],
+    "d1Databases": ["DB"],
+    "r2Buckets": [],
+    "durableObjects": [],
+    "compatibilityDate": "2025-12-12"
+  },
+  "secrets": [
+    "JWT_SECRET",
+    "ALLOWED_ORIGINS"
+  ]
+}

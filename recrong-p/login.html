@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <title>Recrong - Login</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #000000;
+            --primary-hover: #333333;
+            --accent: #0070f3;
+            --danger: #e00;
+            --success: #0a0;
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-main: #111;
+            --text-sub: #666;
+            --border: #eaeaea;
+            --radius: 12px;
+            --shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background-image:
+                radial-gradient(#ddd 1px, transparent 1px),
+                radial-gradient(#ddd 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        .bg-gradient {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0) 70%);
+            pointer-events: none; z-index: -1;
+        }
+
+        .container {
+            width: 100%; max-width: 400px; padding: 20px;
+            position: relative; z-index: 10;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: var(--card-bg); padding: 30px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.04);
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; transform: translateY(20px);
+        }
+        @keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
+
+        /* 卡片内导航栏 (Home + Language) */
+        .card-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px;
+        }
+        .ghost-btn {
+            background: transparent; border: none; color: var(--text-sub);
+            padding: 8px 10px; border-radius: 8px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .ghost-btn:hover { background: #f5f5f5; color: var(--text-main); transform: translateY(-1px); }
+
+        .header { margin-bottom: 32px; text-align: center; }
+        .logo {
+            width: 48px; height: 48px; margin: 0 auto 16px;
+            background: linear-gradient(135deg, #eee 0%, #fff 100%);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-size: 24px; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
+        }
+        h2 { margin: 0; font-size: 1.75rem; font-weight: 700; color: #000; letter-spacing: -0.02em; }
+        .subtitle { margin-top: 8px; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; }
+
+        .form-group { margin-bottom: 20px; }
+
+        /* 标签行布局：Label + 帮助链接 */
+        .label-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
+        }
+        label {
+            font-size: 0.8rem; font-weight: 600; color: var(--text-main);
+            text-transform: uppercase; letter-spacing: 0.04em; margin: 0;
+        }
+        /* 帮助链接样式 */
+        .help-link {
+            font-size: 0.75rem; color: var(--accent); text-decoration: none;
+            display: flex; align-items: center; gap: 3px; font-weight: 500;
+        }
+        .help-link:hover { text-decoration: underline; }
+
+        input {
+            width: 100%; padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #fff;
+            font-size: 1rem; color: #000;
+            transition: all 0.2s ease; outline: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.01);
+        }
+        input:focus { border-color: var(--text-main); box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+        input.invalid { border-color: var(--danger); background: #fff0f0; }
+
+        /* 协议勾选样式 */
+        .checkbox-group {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 20px; font-size: 0.85rem; color: var(--text-sub);
+        }
+        .checkbox-group input {
+            width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary);
+            flex-shrink: 0;
+        }
+        .checkbox-group label {
+            text-transform: none; font-weight: 400; margin: 0; cursor: pointer;
+            display: inline; line-height: 1.4;
+        }
+        .checkbox-group a {
+            color: var(--primary); text-decoration: none; font-weight: 600;
+        }
+        .checkbox-group a:hover { text-decoration: underline; }
+
+        .btn-submit {
+            width: 100%; padding: 14px;
+            background: var(--primary); color: #fff;
+            border: none; border-radius: var(--radius);
+            font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-submit:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.6; cursor: wait; }
+
+        .footer-link { text-align: center; margin-top: 24px; font-size: 0.9rem; }
+        .footer-link a { color: var(--text-sub); text-decoration: none; transition: color 0.2s; }
+        .footer-link a:hover { color: var(--accent); text-decoration: underline; }
+
+        /* Toast */
+        #toast-container { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; }
+        .toast {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            padding: 12px 24px; border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            font-size: 0.9rem; font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05);
+            animation: toastSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: all;
+        }
+        .toast.error { color: var(--danger); border-color: rgba(238, 0, 0, 0.1); }
+        .toast.success { color: var(--success); border-color: rgba(0, 170, 0, 0.1); }
+        @keyframes toastSlide { from { transform: translateY(-20px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        @media (max-width: 480px) {
+            .card { padding: 30px 20px; box-shadow: none; border: none; background: transparent; }
+        }
+    </style>
+    <script src="/config.js?v=1.0.1"></script>
+    <script src="/i18n.js?v=1.0.1"></script>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+    <div id="toast-container"></div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-nav">
+                <button class="ghost-btn" onclick="window.location.href='/'" title="Home">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span data-i18n="btn_home">Home</span>
+                </button>
+
+                <button class="ghost-btn" onclick="toggleLanguage()">
+                    <span style="font-size:1.1rem; margin-right:4px;">🌐</span>
+                    <span id="langLabel">EN</span>
+                </button>
+            </div>
+
+            <div class="header">
+                <div class="logo">⚡</div>
+                <h2 data-i18n="login_title">Login</h2>
+                <div class="subtitle" data-i18n="login_subtitle">Welcome back, please enter your details.</div>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="esimggNumber" data-i18n="label_phone">Phone Number</label>
+                        <a href="/tutorial.html#chapter1" target="_blank" class="help-link">
+                            <span data-i18n="link_how_to_get_num">How to get a number?</span> ↗
+                        </a>
+                    </div>
+                    <input type="text" id="esimggNumber" name="esimggNumber" required
+                           data-i18n-placeholder="ph_phone"
+                           placeholder="372..."
+                           oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+
+                <div class="form-group">
+                    <label for="password" data-i18n="label_curr_pwd">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="agreeTos">
+                    <label for="agreeTos">
+                        <span data-i18n="label_agree">I agree to the</span>
+                        <a href="/tos.html" target="_blank" data-i18n="link_tos">Terms & Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span data-i18n="btn_login">Sign In</span>
+                </button>
+
+                <div class="footer-link">
+                    <a href="/register.html" data-i18n="link_no_account">No account? Create one</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ================= 工具函数 =================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let icon = 'ℹ️';
+            if (type === 'error') icon = '✕';
+            if (type === 'success') icon = '✓';
+            toast.innerHTML = `<span style="font-weight:bold; font-size:1.1em; line-height:1">${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.animation = 'fadeOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // ================= 初始化逻辑 =================
+        (function() {
+            if (localStorage.getItem('userPermissions')) {
+                window.location.href = '/dashboard.html';
+            }
+            // 移除输入框红框
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', () => input.classList.remove('invalid'));
+            });
+        })();
+
+        // ================= 表单提交 =================
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const phoneInput = document.getElementById('esimggNumber');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.getElementById('submitBtn');
+            const tosCheckbox = document.getElementById('agreeTos');
+
+            const esimggNumber = phoneInput.value.trim(); // 去除首尾空格
+            const password = passwordInput.value;
+
+            // 协议校验
+            if (!tosCheckbox.checked) {
+                showToast(t('msg_must_agree'), 'error');
+                tosCheckbox.focus();
+                tosCheckbox.parentElement.style.animation = "shake 0.3s";
+                setTimeout(() => tosCheckbox.parentElement.style.animation = "", 300);
+                return;
+            }
+
+            // 空值校验
+            if(!esimggNumber || !password) {
+                if(!esimggNumber) phoneInput.classList.add('invalid');
+                if(!password) passwordInput.classList.add('invalid');
+                return;
+            }
+
+            // 格式校验
+            const phoneRegex = /^372\d{8}$/;
+
+            if (!phoneRegex.test(esimggNumber)) {
+                showToast(t('msg_invalid_phone_fmt'), 'error');
+                phoneInput.classList.add('invalid'); // 高亮错误框
+                phoneInput.focus();
+                return;
+            }
+
+            submitBtn.disabled = true;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/login`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ esimggNumber, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(t('msg_login_success'), 'success');
+
+                    localStorage.setItem('userPhoneNumber', esimggNumber);
+                    localStorage.setItem('userPermissions', result.permissions);
+                    localStorage.setItem('userId', result.userId);
+
+                    setTimeout(() => { window.location.href = '/dashboard.html'; }, 800);
+                } else {
+                    // 错误处理：优先使用 code 翻译
+                    const errorMsg = result.code ? t(result.code) : result.error;
+                    showToast(errorMsg, 'error');
+
+                    phoneInput.value = '';
+                    passwordInput.value = '';
+
+                    phoneInput.classList.add('invalid');
+                    passwordInput.classList.add('invalid');
+
+                    // 聚焦回手机号输入框，方便重新输入
+                    phoneInput.focus();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast(t('msg_network_error'), 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    </script>
+    <style>
+        /* 震动动画 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</body>
+</html>

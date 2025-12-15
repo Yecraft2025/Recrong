@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <title>Recrong - 使用教程</title>
+    <script src="./config.js?v=1.0.1"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #000000;
+            --accent: #0070f3;
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-main: #111;
+            --text-sub: #555;
+            --border: #eaeaea;
+            --radius: 12px;
+            --shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        html { scroll-behavior: smooth; } /* 平滑滚动 */
+
+        body {
+            font-family: var(--font-family);
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            background-image:
+                radial-gradient(#ddd 1px, transparent 1px),
+                radial-gradient(#ddd 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        /* --- 布局容器 --- */
+        .wrapper {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            gap: 40px;
+            position: relative;
+        }
+
+        /* --- 左侧悬浮大纲 (TOC) --- */
+        .toc-container {
+            position: fixed;
+            left: 20px;
+            top: 100px;
+            z-index: 100;
+            width: 240px;
+            /* 移动端适配的关键过渡 */
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+        }
+
+        .toc-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            /* 设定最大高度，防止超长时溢出 */
+            max-height: 80vh;
+        }
+
+        .toc-title {
+            font-size: 0.85rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 15px; display: block; flex-shrink: 0;
+        }
+
+        /* 列表占据剩余空间 */
+        .toc-list {
+            list-style: none; padding: 0; margin: 0;
+            flex: 1; /* 撑开中间区域 */
+            overflow-y: auto; /* 如果列表很长，允许内部滚动 */
+        }
+
+        .toc-item { margin-bottom: 8px; }
+        .toc-link {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none; color: var(--text-sub); font-size: 0.95rem; font-weight: 500;
+            padding: 10px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .toc-link:hover, .toc-link.active { background: #f3f4f6; color: var(--primary); }
+        .toc-link.active { font-weight: 700; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; }
+
+        /* 侧边栏底部联系方式 */
+        .toc-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-shrink: 0; /* 防止被压缩 */
+        }
+        .toc-contact-link {
+            color: #999;
+            transition: all 0.2s;
+            display: none; /* 默认隐藏，JS有值才显示 */
+            padding: 5px;
+        }
+        .toc-contact-link:hover {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        /* --- 右侧内容区域 --- */
+        .content-area {
+            flex: 1;
+            margin-left: 280px;
+            max-width: 800px;
+        }
+
+        .chapter { margin-bottom: 50px; scroll-margin-top: 80px; }
+
+        .card {
+            background: var(--card-bg); padding: 50px; border-radius: 24px;
+            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.04);
+            position: relative;
+        }
+
+        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; line-height: 1.2; }
+        .main-desc { color: var(--text-sub); font-size: 1.1rem; margin-bottom: 40px; }
+
+        h2 {
+            font-size: 1.5rem; font-weight: 700; margin-bottom: 25px;
+            padding-bottom: 15px; border-bottom: 2px solid #f0f0f0;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .chapter-num {
+            background: var(--primary); color: #fff; width: 32px; height: 32px;
+            border-radius: 8px; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+        }
+
+        .step-item { margin-bottom: 40px; position: relative; padding-left: 25px; border-left: 2px solid #f0f0f0; }
+        .step-dot {
+            position: absolute; left: -7px; top: 5px; width: 12px; height: 12px;
+            background: #fff; border: 3px solid var(--accent); border-radius: 50%;
+        }
+        .step-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: #222; }
+        .step-desc { margin-bottom: 15px; color: var(--text-sub); font-size: 0.95rem; }
+
+        /* 图片框 */
+        .img-box {
+            width: 100%; border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-top: 15px; background: #f9fafb;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 150px;
+        }
+        /* 图片悬停效果 */
+        .img-box img {
+            width: 100%; height: auto; display: block;
+            cursor: zoom-in; /* 鼠标指针变成放大镜 */
+            transition: transform 0.2s ease, opacity 0.2s;
+        }
+        .img-box img:hover {
+            opacity: 0.95;
+        }
+        .placeholder-text { color: #ccc; font-weight: 500; font-size: 0.9rem; }
+
+        /* 代码块 */
+        .code-block {
+            background: #111; color: #eee; padding: 20px; border-radius: 12px;
+            font-family: 'SF Mono', 'Roboto Mono', monospace; font-size: 0.85rem;
+            position: relative; overflow-x: auto; white-space: pre-wrap; word-break: break-all;
+            margin-top: 15px;
+        }
+        .copy-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255,255,255,0.2); color: #fff;
+            border: none; border-radius: 6px; padding: 4px 8px;
+            font-size: 0.75rem; cursor: pointer;
+        }
+
+        /* 返回按钮 */
+        .nav-back-fixed {
+            position: fixed; top: 30px; left: 30px; z-index: 101;
+        }
+        .ghost-btn {
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(5px);
+            border: 1px solid var(--border); color: var(--text-sub);
+            padding: 8px 16px; border-radius: 20px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 500; transition: all 0.2s ease;
+            display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .ghost-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #000; }
+
+        /* 放大查看图片模态框样式 */
+        .lightbox-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); /* 深色半透明背景 */
+            z-index: 3000; /* 确保在最顶层，超过 TOC 的 2000 */
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+            cursor: zoom-out;
+        }
+        .lightbox-modal.active { display: flex; opacity: 1; }
+        .lightbox-content {
+            max-width: 95%; max-height: 95%;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+
+            /* 关键属性：禁止默认触摸行为（如滚动），交给 JS 处理 */
+            touch-action: none;
+
+            object-fit: contain;
+            transform-origin: center center; /* 确保从中心缩放 */
+        }
+        .lightbox-modal.active .lightbox-content { transform: scale(1); }
+
+        /* --- 移动端样式 --- */
+        .mobile-toc-btn { display: none; }
+        .mobile-overlay { display: none; }
+
+        @media (max-width: 900px) {
+            .wrapper { flex-direction: column; padding: 20px; margin-top: 40px; }
+            .content-area { margin-left: 0; }
+            .card { padding: 30px 20px; }
+            .nav-back-fixed { position: absolute; top: 20px; left: 20px; }
+
+            /* 1. 移动端抽屉容器 */
+            .toc-container {
+                position: fixed;
+                top: 0; left: 0; bottom: 0;
+                width: 280px;
+                height: 100vh;
+                margin: 0;
+                transform: translateX(-100%);
+                z-index: 2000;
+                display: flex;
+            }
+
+            .toc-container.active { transform: translateX(0); }
+
+            .toc-card {
+                width: 100%; height: 100%;
+                max-height: none; /* 移动端撑满全屏 */
+                border-radius: 0;
+                border-right: 1px solid var(--border);
+                border-top: none; border-bottom: none; border-left: none;
+                padding-top: 60px; /* 避开顶部区域 */
+                background: #fff;
+            }
+
+            /* 移动端 Footer 位置调整 */
+            .toc-footer {
+                /* 增加足够的底部空间，避开浏览器底栏 */
+                padding-bottom: 120px;
+                margin-top: auto;
+            }
+
+            /* 2. 移动端唤起按钮 (贴左、靠下、小尺寸) */
+            .mobile-toc-btn {
+                display: flex; align-items: center; justify-content: center;
+                position: fixed;
+                top: 90%; /* 靠下的位置 */
+                left: 0;
+                transform: translateY(-50%);
+                z-index: 1000;
+                background: var(--primary); color: #fff;
+                padding: 8px 10px 8px 6px; /* 小内边距 */
+                border-radius: 0 50% 50% 0;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+                border: none; cursor: pointer;
+                transition: transform 0.2s, background 0.2s;
+            }
+            /* 缩小图标 */
+            .mobile-toc-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+            .mobile-toc-btn:active { transform: translateY(-50%) scale(0.9); }
+            /* 半透明设计防止太显眼 */
+            .mobile-toc-btn:not(:hover) { opacity: 0.8; }
+
+            /* 遮罩层 */
+            .mobile-overlay {
+                display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.5); z-index: 1500;
+                opacity: 0; pointer-events: none;
+                transition: opacity 0.3s;
+                backdrop-filter: blur(2px);
+            }
+            .mobile-overlay.active { opacity: 1; pointer-events: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部返回注册页按钮 -->
+    <div class="nav-back-fixed">
+        <a href="/register.html" class="ghost-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            返回
+        </a>
+    </div>
+
+    <!-- 移动端目录按钮 -->
+    <button class="mobile-toc-btn" onclick="toggleMobileToc()" title="目录">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+    <!-- 遮罩层 -->
+    <div class="mobile-overlay" onclick="toggleMobileToc()" id="tocOverlay"></div>
+
+    <!-- 图片放大模态框 -->
+    <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox()">
+        <img class="lightbox-content" id="lightboxImg" src="">
+    </div>
+
+    <div class="wrapper">
+        <!-- 左侧大纲 -->
+        <nav class="toc-container" id="tocSidebar">
+            <div class="toc-card">
+                <span class="toc-title">目录导航</span>
+                <ul class="toc-list">
+                    <li class="toc-item">
+                        <!-- 点击链接后，在移动端需要关闭抽屉 -->
+                        <a href="#chapter1" class="toc-link active" onclick="activateLink(this); closeMobileToc()">
+                            <svg class="toc-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                            <span class="toc-text">1. 获得 EE 号码</span>
+                        </a>
+                    </li>
+                    <li class="toc-item">
+                        <a href="#chapter2" class="toc-link" onclick="activateLink(this); closeMobileToc()">
+                            <svg class="toc-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"></path><path d="M12 19h8"></path></svg>
+                            <span class="toc-text">2. 获取短信 API</span>
+                        </a>
+                    </li>
+                </ul>
+                <!-- 底部联系图标 -->
+                <div class="toc-footer">
+                    <a id="tocGithub" target="_blank" class="toc-contact-link" title="GitHub">
+                        <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                    </a>
+                    <a id="tocEmail" class="toc-contact-link" title="Email">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                    </a>
+                    <a id="tocTelegram" target="_blank" class="toc-contact-link" title="Telegram">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 右侧内容 -->
+        <main class="content-area">
+
+            <div class="chapter">
+                <h1>Recrong 使用教程</h1>
+                <p class="main-desc">只需简单几步，即可搭建属于您的短信提醒服务。</p>
+            </div>
+
+            <!-- 第一章：获取 EE 号码 -->
+            <div id="chapter1" class="chapter">
+                <div class="card">
+                    <h2>
+                        <div class="chapter-num">1</div>
+                        获得 EE 号码
+                    </h2>
+
+                    <!-- 步骤 1.1 -->
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">访问网站</div>
+                        <div class="step-desc">打开<a href="https://esim.gg/e/yecraft" target="_blank" style="color: #0070f3; text-decoration: none;"> eSiM.gg </a>，点击右上角<strong>"Sign In"</strong>（需要更换语言可自行切换）</div>
+                        <div class="img-box"><img src="./tutimg/113341.jpg" alt="网站" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <!-- 步骤 1.2 -->
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">登录或注册</div>
+                        <div class="step-desc">根据提示选择任意登录方式，平台支持多种账号连接方式~</div>
+                        <div class="img-box"><img src="./tutimg/584524.jpg" alt="登录" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">添加路线</div>
+                        <div class="step-desc">点击<strong>添加新路线</strong>或左侧<strong>新号码</strong>来开始创建新线路</div>
+                        <div class="img-box"><img src="./tutimg/681226.jpg" alt="路线" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">声明与须知</div>
+                        <div class="step-desc">请务必<strong>完整阅读并理解所有限制条款</strong></div>
+                        <div class="step-desc">勾选此框即表示您已明确知晓所有服务限制，并同意承担因设备不兼容、验证码无法接收、语音功能受限等任何问题导致的后果</div>
+                        <div class="img-box"><img src="./tutimg/431417.jpg" alt="声明" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">折扣代码</div>
+                        <div class="step-desc">在右侧订单摘要里输入<strong> YECRAFT </strong>获取折扣</div>
+                        <div class="step-desc">或点击此链接享受最高折扣：<a href="https://esim.gg/e/YECRAFT" target="_blank" style="color: #0070f3; text-decoration: none;">专属折扣</a></div>
+                        <div class="img-box"><img src="./tutimg/642116.jpg" alt="折扣" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">初始余额</div>
+                        <div class="step-desc">选择初始余额（最低 1€）</div>
+                        <div class="step-desc">选号优惠将按照初始余额的 20% 自动计算</div>
+                        <div class="img-box"><img src="./tutimg/492246.jpg" alt="路线" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">挑选号码</div>
+                        <div class="step-desc">挑选自己满意的号码</div>
+                        <div class="step-desc">部分号码无需选号费</div>
+                        <div class="img-box"><img src="./tutimg/942551.jpg" alt="号码" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">完成支付</div>
+                        <div class="step-desc">检查是否为欧盟居民</div>
+                        <div class="step-desc">支持 <strong>Strip、支付宝、微信支付、Coinbase、币安和钱包</strong>多种支付方式</div>
+                        <div class="img-box"><img src="./tutimg/284951.jpg" alt="支付" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 第二章：获取短信 API -->
+            <div id="chapter2" class="chapter">
+                <div class="card">
+                    <h2>
+                        <div class="chapter-num">2</div>
+                        获取短信 API
+                    </h2>
+
+                    <!-- 步骤 2.1 -->
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">选择路线</div>
+                        <div class="step-desc">在<strong>我的路线</strong> - <strong>Elisa预付费</strong>里</div>
+                        <div class="step-desc">比如我这里选择：<strong>+372 5984 4999</strong> (有借有还)</div>
+                        <div class="img-box"><img src="./tutimg/212628.jpg" alt="路线" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <!-- 步骤 2.2 -->
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">消息选项</div>
+                        <div class="step-desc">点击<strong>消息</strong>选项</div>
+                        <div class="img-box"><img src="./tutimg/213322.jpg" alt="消息" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">API文档</div>
+                        <div class="step-desc">滑到页面底部</div>
+                        <div class="step-desc">点击<strong>API Documentation & Instructions</strong></div>
+                        <div class="img-box"><img src="./tutimg/213923.jpg" alt="API" style="width: 100%; height: auto;"></div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-dot"></div>
+                        <div class="step-title">API URL</div>
+                        <div class="step-desc">完整复制 <strong>短信 API[测试版]</strong> 里的链接</div>
+                        <div class="img-box"><img src="./tutimg/214618.jpg" alt="API" style="width: 100%; height: auto;"></div>
+                        <div class="code-block"><button class="copy-btn" onclick="copyCode()">复制</button>
+https://api.nekoko.tel/sms/send/37259844999?apikey=<span style="color:#05a1e4">这里需要马赛克</span>&from=<span style="color:#ef4444">37259844999</span>&body=<span style="color:#ef4444">Your+test+message</span></div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 50px;">
+                    <a href="/register.html" style="background: #000; color: #fff; padding: 14px 40px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(0,0,0,0.15); transition: transform 0.2s; display:inline-block;">
+                        教程结束 →
+                    </a>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // 初始化联系方式
+        (function initTocContacts() {
+            if (typeof CONTACT_INFO === 'undefined') return;
+
+            const gh = document.getElementById('tocGithub');
+            const em = document.getElementById('tocEmail');
+            const tg = document.getElementById('tocTelegram');
+
+            if (CONTACT_INFO.GITHUB) {
+                gh.href = CONTACT_INFO.GITHUB;
+                gh.style.display = 'block';
+            }
+            if (CONTACT_INFO.EMAIL) {
+                em.href = 'mailto:' + CONTACT_INFO.EMAIL;
+                em.style.display = 'block';
+            }
+            if (CONTACT_INFO.TELEGRAM) {
+                tg.href = CONTACT_INFO.TELEGRAM;
+                tg.style.display = 'block';
+            }
+        })();
+
+        // 移动端目录交互
+        const tocSidebar = document.getElementById('tocSidebar');
+        const tocOverlay = document.getElementById('tocOverlay');
+
+        function toggleMobileToc() {
+            tocSidebar.classList.toggle('active');
+            tocOverlay.classList.toggle('active');
+        }
+
+        function closeMobileToc() {
+            if (window.innerWidth <= 900) {
+                tocSidebar.classList.remove('active');
+                tocOverlay.classList.remove('active');
+            }
+        }
+
+        // 高亮逻辑
+        function activateLink(el) {
+            document.querySelectorAll('.toc-link').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.chapter');
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 250) {
+                    current = section.getAttribute('id');
+                }
+            });
+            if (current) {
+                document.querySelectorAll('.toc-link').forEach(a => {
+                    a.classList.remove('active');
+                    if (a.getAttribute('href').includes(current)) {
+                        a.classList.add('active');
+                    }
+                });
+            }
+        });
+
+        // 复制代码
+        function copyCode() {
+            const code = "不是让你去复制这里的链接啊……";
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                const originalText = btn.textContent;
+                btn.textContent = "已复制!";
+                setTimeout(() => btn.textContent = originalText, 2000);
+            });
+        }
+
+        // 图片放大逻辑
+        const lightbox = document.getElementById('lightboxModal');
+        const lightboxImg = document.getElementById('lightboxImg');
+
+        // 状态变量
+        let state = {
+            scale: 1,
+            panning: false,
+            pointX: 0,
+            pointY: 0,
+            startX: 0,
+            startY: 0,
+            startScale: 1,
+            startDistance: 0
+        };
+
+        // 打开模态框
+        document.querySelectorAll('.img-box img').forEach(img => {
+            img.addEventListener('click', (e) => {
+                // 阻止冒泡，防止触发关闭
+                e.stopPropagation();
+                lightboxImg.src = img.src;
+                lightbox.classList.add('active');
+                resetState();
+            });
+        });
+
+        // 关闭模态框
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            // 关闭动画结束后重置，防止下次打开闪烁
+            setTimeout(resetState, 300);
+        }
+
+        // 点击背景关闭
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // 重置图片状态
+        function resetState() {
+            state = { scale: 1, panning: false, pointX: 0, pointY: 0, startX: 0, startY: 0 };
+            updateTransform();
+        }
+
+        function updateTransform() {
+            lightboxImg.style.transform = `translate(${state.pointX}px, ${state.pointY}px) scale(${state.scale})`;
+        }
+
+        // --- 手势处理逻辑 ---
+
+        // 开始触摸
+        lightboxImg.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // 防止默认滚动
+
+            // 单指拖拽
+            if (e.touches.length === 1) {
+                state.startX = e.touches[0].clientX - state.pointX;
+                state.startY = e.touches[0].clientY - state.pointY;
+                state.panning = true;
+            }
+            // 双指缩放
+            else if (e.touches.length === 2) {
+                state.startDistance = getDistance(e.touches);
+                state.startScale = state.scale;
+            }
+        });
+
+        // 移动手指
+        lightboxImg.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+
+            // 单指拖拽 (只有放大后才允许拖拽)
+            if (e.touches.length === 1 && state.panning && state.scale > 1) {
+                state.pointX = e.touches[0].clientX - state.startX;
+                state.pointY = e.touches[0].clientY - state.startY;
+                updateTransform();
+            }
+            // 双指缩放
+            else if (e.touches.length === 2) {
+                const newDistance = getDistance(e.touches);
+                if (newDistance > 0) {
+                    const zoomFactor = newDistance / state.startDistance;
+                    // 限制最小缩放 1倍，最大 4倍
+                    state.scale = Math.min(Math.max(1, state.startScale * zoomFactor), 4);
+                    updateTransform();
+                }
+            }
+        });
+
+        // 结束触摸
+        lightboxImg.addEventListener('touchend', (e) => {
+            state.panning = false;
+            // 如果缩小小于 1，自动弹回 1
+            if (state.scale < 1) {
+                state.scale = 1;
+                state.pointX = 0;
+                state.pointY = 0;
+                lightboxImg.style.transition = 'transform 0.3s';
+                updateTransform();
+                // 动画结束后移除 transition，以免影响手势
+                setTimeout(() => lightboxImg.style.transition = '', 300);
+            }
+        });
+
+        // 双击自动放大/还原
+        let lastTap = 0;
+        lightboxImg.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                // 双击事件
+                e.preventDefault();
+                if (state.scale === 1) {
+                    state.scale = 2.5; // 放大
+                } else {
+                    resetState(); // 还原
+                }
+                lightboxImg.style.transition = 'transform 0.3s';
+                updateTransform();
+                setTimeout(() => lightboxImg.style.transition = '', 300);
+            }
+            lastTap = currentTime;
+        });
+
+        // 计算两指距离工具函数
+        function getDistance(touches) {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+    </script>
+</body>
+</html>

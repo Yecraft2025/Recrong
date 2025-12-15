@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <title>Recrong - Verify</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* 复用 Register 页面的核心变量 */
+        :root {
+            --primary: #000000;
+            --primary-hover: #333333;
+            --accent: #0070f3;
+            --danger: #e00;
+            --success: #0a0;
+            --bg-color: #fafafa;
+            --card-bg: #ffffff;
+            --text-main: #111;
+            --text-sub: #666;
+            --border: #eaeaea;
+            --radius: 12px;
+            --shadow: 0 5px 10px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.08);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            /* 背景网格 */
+            background-image:
+                radial-gradient(#ddd 1px, transparent 1px),
+                radial-gradient(#ddd 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        .bg-gradient {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.8) 0%, rgba(250,250,250,0) 70%);
+            pointer-events: none; z-index: -1;
+        }
+
+        .container {
+            width: 100%; max-width: 440px; padding: 20px;
+            position: relative; z-index: 10;
+        }
+
+        /* 主卡片 */
+        .card {
+            background: var(--card-bg);
+            padding: 30px; /* 稍微减少一点 padding 给导航栏留空间 */
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.04);
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0; transform: translateY(20px);
+        }
+        @keyframes slideUpFade { to { opacity: 1; transform: translateY(0); } }
+
+        /* 卡片内部导航栏 */
+        .card-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px; /* 与下方 Logo 的间距 */
+        }
+
+        /* 幽灵按钮样式 (无背景，悬停变灰) */
+        .ghost-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem; font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .ghost-btn:hover {
+            background: #f5f5f5; /* 浅灰背景 */
+            color: var(--text-main);
+            transform: translateY(-1px);
+        }
+        .ghost-btn svg { width: 16px; height: 16px; }
+
+
+        .header { margin-bottom: 32px; text-align: center; }
+        /* 锁图标容器 */
+        .icon-box {
+            width: 48px; height: 48px; margin: 0 auto 16px;
+            background: #f3f4f6; color: #000;
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+        }
+        h2 { margin: 0; font-size: 1.75rem; font-weight: 700; color: #000; letter-spacing: -0.02em; }
+
+        .subtitle { margin-top: 12px; font-size: 0.95rem; color: var(--text-sub); line-height: 1.5; }
+
+        /* 手机号高亮胶囊 */
+        .phone-badge {
+            display: inline-block;
+            background: #eef2ff; color: var(--accent);
+            padding: 2px 10px; border-radius: 12px;
+            font-weight: 600; font-family: 'SF Mono', 'Roboto Mono', monospace;
+            font-size: 0.9em; border: 1px solid rgba(0,112,243,0.1);
+        }
+
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block; margin-bottom: 8px; font-size: 0.8rem;
+            font-weight: 600; color: var(--text-main);
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+
+        input {
+            width: 100%; padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #fff;
+            font-size: 1rem; color: #000;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        input:focus { border-color: var(--text-main); box-shadow: 0 0 0 4px rgba(0,0,0,0.05); }
+        input.invalid { border-color: var(--danger); background: #fff0f0; }
+
+        /* 验证码输入框特殊样式 */
+        #code {
+            letter-spacing: 0.5em; text-align: center;
+            font-weight: 700; font-family: 'SF Mono', monospace;
+            font-size: 1.2rem;
+        }
+        #code::placeholder { letter-spacing: normal; font-weight: 400; font-family: var(--font-family); font-size: 1rem; }
+
+        .btn-submit {
+            width: 100%; padding: 14px; margin-top: 10px;
+            background: var(--primary); color: #fff;
+            border: none; border-radius: var(--radius);
+            font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-submit:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        .btn-submit:disabled { opacity: 0.6; cursor: wait; }
+
+        /* Toast */
+        #toast-container { position: fixed; top: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: none; }
+        .toast {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            padding: 12px 24px; border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+            font-size: 0.9rem; font-weight: 500;
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 10px; border: 1px solid rgba(0,0,0,0.05);
+            animation: toastSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: all;
+        }
+        .toast.error { color: var(--danger); border-color: rgba(238, 0, 0, 0.1); }
+        .toast.success { color: var(--success); border-color: rgba(0, 170, 0, 0.1); }
+        .toast.info { color: var(--accent); }
+        @keyframes toastSlide { from { transform: translateY(-20px) scale(0.9); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+        @media (max-width: 480px) {
+            .card { padding: 30px 20px; box-shadow: none; border: none; background: transparent; }
+        }
+    </style>
+    <script src="/config.js?v=1.0.1"></script>
+    <script src="/i18n.js?v=1.0.1"></script>
+</head>
+<body>
+
+    <div class="bg-gradient"></div>
+    <div id="toast-container"></div>
+
+    <div class="container">
+        <div class="card">
+
+            <div class="card-nav">
+                <!-- 返回按钮 -->
+                <button class="ghost-btn" onclick="window.location.href='/login.html'" title="Back">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    <span>Login</span>
+                </button>
+
+                <!-- 语言切换 -->
+                <button class="ghost-btn" onclick="toggleLanguage()">
+                    <span style="font-size:1rem; margin-right:4px;">🌐</span>
+                    <span id="langLabel" style="font-weight:600">EN</span>
+                </button>
+            </div>
+
+            <div class="header">
+                <div class="icon-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <h2 data-i18n="verify_title">Verify Account</h2>
+                <div class="subtitle">
+                    <span data-i18n="msg_code_sent">Code sent to:</span> <span id="phoneNumber" class="phone-badge">...</span>
+                </div>
+            </div>
+
+            <form id="verifyForm">
+                <div class="form-group">
+                    <label for="code" data-i18n="label_verify_code">6-Digit Code</label>
+                    <!-- autocomplete="one-time-code" 帮助移动端自动填充短信验证码 -->
+                    <input type="text" id="code" name="code" required maxlength="6" pattern="\d{6}"
+                           data-i18n-placeholder="ph_verify_code" placeholder="123456"
+                           autocomplete="one-time-code" inputmode="numeric"
+                           oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+
+                <div class="form-group">
+                    <label for="password" data-i18n="label_set_pwd">Set Password</label>
+                    <input type="password" id="password" name="password" required minlength="6"
+                           data-i18n-placeholder="ph_set_pwd" placeholder="Min 6 chars">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword" data-i18n="label_confirm_pwd">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6"
+                           data-i18n-placeholder="ph_confirm_pwd" placeholder="Re-enter password">
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-submit">
+                    <span data-i18n="btn_complete_reg">Complete Registration</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ================= 工具函数 (Modern Toast) =================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            let icon = 'ℹ️';
+            if (type === 'error') icon = '✕';
+            if (type === 'success') icon = '✓';
+
+            toast.innerHTML = `<span style="font-weight:bold; font-size:1.1em; line-height:1">${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ================= 初始化逻辑 =================
+        const urlParams = new URLSearchParams(window.location.search);
+        const phoneNumber = urlParams.get('phone');
+        const phoneRegex = /^372\d{8}$/;
+
+        const userPermsStr = localStorage.getItem('userPermissions');
+
+        if (userPermsStr) window.location.href = '/dashboard.html';
+
+        if (!phoneNumber || !phoneRegex.test(phoneNumber)) {
+            window.location.href = '/login.html';
+        } else {
+            document.getElementById('phoneNumber').textContent = phoneNumber;
+        }
+
+        // ================= 表单提交 =================
+        document.getElementById('verifyForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const codeInput = document.getElementById('code');
+            const passwordInput = document.getElementById('password');
+            const confirmInput = document.getElementById('confirmPassword');
+            const submitBtn = document.getElementById('submitBtn');
+
+            const code = codeInput.value;
+            const password = passwordInput.value;
+            const confirmPassword = confirmInput.value;
+
+            // 清除之前的错误状态
+            [codeInput, passwordInput, confirmInput].forEach(el => el.classList.remove('invalid'));
+
+            let isValid = true;
+
+            if (code.length !== 6) { codeInput.classList.add('invalid'); isValid = false; }
+            if (password.length < 6) { passwordInput.classList.add('invalid'); isValid = false; }
+            if (password !== confirmPassword) {
+                confirmInput.classList.add('invalid');
+                showToast(t('msg_pwd_mismatch'), 'error');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            submitBtn.disabled = true;
+            const originalText = submitBtn.innerHTML;
+            submitBtn.textContent = t('msg_saving');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber, code, password }),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(t('msg_reg_success'), 'success');
+                    // 稍微延迟以展示成功状态
+                    setTimeout(() => { window.location.href = '/login.html'; }, 1500);
+                } else {
+                    const errorMsg = result.code ? t(result.code) : result.error;
+                    throw new Error(errorMsg);
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+
+                // 如果是验证码错误，高亮验证码框
+                if(err.message.includes(t('INVALID_VERIFY_CODE')) || err.message.includes('code')) {
+                    codeInput.classList.add('invalid');
+                }
+            }
+        });
+
+        // 输入监听：移除错误红框
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => input.classList.remove('invalid'));
+        });
+    </script>
+</body>
+</html>

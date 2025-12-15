@@ -1,0 +1,16 @@
+{
+  "name": "recrong-worker",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "keywords": [],
+  "author": "Yecraft",
+  "license": "MIT",
+  "description": "A timed sending program based on SMS API.",
+  "devDependencies": {
+    "wrangler": "^4.50.0"
+  }
+}

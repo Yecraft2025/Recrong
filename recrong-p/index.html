@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <title>Recrong - 🐢</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+
+    <script src="./config.js?v=1.0.1"></script>
+    <script src="./i18n.js?v=1.0.1"></script>
+    <script src="./turtles.js?v=1.0.1"></script>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #8e8e93;
+            --accent-blue: #0a84ff;
+            --accent-green: #30d158;
+
+            --kb-bg: #1c1c1e;
+            --key-bg: #4a4a4c;
+            --key-active: #5c5c5e;
+            --key-action-bg: #2c2c2e;
+
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        /* --- 顶部导航 --- */
+        .header-bar {
+            position: fixed; top: 0; width: 100%; height: 50px;
+            background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 15px; z-index: 100;
+        }
+        .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; }
+        .nav-btn {
+            color: var(--text-primary); text-decoration: none; font-size: 0.85rem; font-weight: 600;
+            padding: 5px 10px; border-radius: 15px; transition: background 0.2s; border: none; background: transparent; cursor: pointer;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); }
+        .nav-btn.highlight { color: var(--accent-blue); }
+
+        /* --- 舞台区域 --- */
+        .stage-container {
+            flex: 1;
+            width: 100%; max-width: 600px;
+            margin: 0 auto;
+            padding: 60px 15px 80px 15px;
+            display: flex; flex-direction: column;
+            justify-content: center;
+            position: relative;
+            transition: padding-bottom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        /* 键盘弹出时，内容区上移 */
+        .stage-container.keyboard-active {
+            padding-bottom: 320px;
+            justify-content: flex-end;
+        }
+
+        .message-list { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+        .message-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+
+        .row-sys {
+            justify-content: center; margin-top: 10px; margin-bottom: 5px;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        .sys-badge {
+            background: rgba(255,255,255,0.12); color: var(--text-secondary);
+            font-size: 0.7rem; font-family: 'JetBrains Mono', monospace;
+            padding: 3px 8px; border-radius: 6px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .icon-clock { animation: pulse 2s infinite; color: var(--text-primary); }
+
+        .row-sticker { justify-content: flex-start; }
+        .row-sticker.user-sent { justify-content: flex-end; }
+
+        .sticker-img {
+            width: 110px; height: 110px; object-fit: contain;
+            animation: stickerPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0; transform-origin: bottom left;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+        }
+        .user-sent .sticker-img { transform-origin: bottom right; }
+
+        .message-row.fade-out {
+            animation: fadeOutUp 0.8s ease-in forwards; pointer-events: none;
+        }
+
+        /* --- 底部输入栏 --- */
+        .input-bar-wrapper {
+            position: fixed; bottom: 0; width: 100%; z-index: 200;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            transition: bottom 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            padding: 10px 0;
+        }
+        /* 键盘弹出时位置调整 */
+        .input-bar-wrapper.keyboard-active {
+            bottom: 260px; /* 紧贴键盘 */
+            border-top: none; background: var(--kb-bg);
+        }
+
+        .fake-input-box {
+            max-width: 600px; margin: 0 auto; padding: 0 15px;
+            display: flex; align-items: center; gap: 10px; cursor: text;
+        }
+
+        .input-field {
+            flex: 1; height: 38px; background: #1c1c1e;
+            border: 1px solid #3a3a3c; border-radius: 19px; padding: 0 15px;
+            display: flex; align-items: center; color: #fff; font-size: 1rem;
+            transition: all 0.2s; overflow: hidden; white-space: nowrap;
+        }
+        .input-bar-wrapper.keyboard-active .input-field {
+            background: #2c2c2e; border-color: #555;
+        }
+
+        .cursor {
+            display: inline-block; width: 2px; height: 20px; background: var(--accent-blue);
+            animation: blink 1s infinite; display: none; vertical-align: middle;
+        }
+        .input-bar-wrapper.keyboard-active .cursor { display: inline-block; }
+
+        .send-btn-icon {
+            width: 32px; height: 32px; background: #3a3a3c; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #888; font-weight: bold; transition: all 0.2s; cursor: pointer;
+        }
+        .input-bar-wrapper.keyboard-active .send-btn-icon {
+            background: var(--accent-blue); color: #fff; transform: scale(1.1);
+        }
+
+        /* --- 虚拟键盘 --- */
+        .keyboard-drawer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            height: 260px; /* 固定高度 */
+            background: var(--kb-bg);
+            backdrop-filter: blur(20px);
+            z-index: 150;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex; flex-direction: column;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .keyboard-drawer.show { transform: translateY(0); }
+
+        /* 预测栏 */
+        .suggestion-bar {
+            height: 40px;
+            background: rgba(255,255,255,0.05);
+            display: flex; align-items: center; padding: 0 15px;
+            position: relative;
+            border-bottom: 1px solid rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        .sugg-center {
+            display: flex; align-items: center; justify-content: center; gap: 20px;
+            flex: 1; margin-right: 40px;
+        }
+
+        .sugg-right {
+            position: absolute; right: 10px; top: 0; bottom: 0;
+            display: flex; align-items: center;
+        }
+
+        .sugg-icon-btn {
+            color: #888; width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 6px; transition: all 0.2s; text-decoration: none;
+            cursor: pointer;
+        }
+        .sugg-icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sugg-icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; display: block; }
+
+        /* 键盘主体 */
+        .keyboard-body {
+            padding: 8px;
+            flex: 1;
+            display: flex; flex-direction: column; gap: 6px;
+            max-width: 500px; margin: 0 auto; width: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .keyboard-body::-webkit-scrollbar { display: none; }
+
+        .kb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex-shrink: 0; }
+        .kb-action-row {
+            display: flex; gap: 6px; height: 40px;
+            flex-shrink: 0;
+        }
+
+        .key {
+            background: var(--key-bg);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; user-select: none;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.4);
+            padding: 3px;
+            height: 36px;
+            transition: background 0.1s;
+            position: relative; overflow: hidden;
+        }
+        .key:active { background: var(--key-active); transform: scale(0.98); }
+
+        .key img {
+            width: 100%; height: 100%; object-fit: contain;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+        }
+
+        .key-tutorial {
+            background: #3a3a3c; flex: 2; font-size: 0.9rem; color: #fff; font-weight: 500; text-decoration: none;
+        }
+        .key-tutorial:active { background: #4a4a4c; }
+
+        .key-go {
+            background: var(--accent-blue); color: #fff; flex: 1; font-weight: 700; font-size: 0.95rem;
+        }
+        .key-go:active { background: #0062cc; }
+
+        .kb-footer {
+            text-align: center; color: #555; font-size: 0.7rem;
+            padding: 10px 0 20px 0;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+            flex-shrink: 0;
+        }
+        .kb-footer a { color: #555; text-decoration: none; }
+        .kb-footer a:hover { color: #888; text-decoration: underline; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 140; display: none;
+        }
+        .overlay.show { display: block; }
+
+        /* 动画 */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes stickerPop {
+            0% { opacity: 0; transform: scale(0.3); } 60% { opacity: 1; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fadeOutUp { to { opacity: 0; transform: translateY(-40px) scale(0.9); height: 0; margin: 0; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        @media (max-width: 600px) {
+            .sticker-img { width: 100px; height: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-bar">
+        <div class="logo">⚡ Recrong</div>
+        <div style="display:flex; gap:10px;">
+            <button class="nav-btn" onclick="toggleLanguage()">🌐 <span id="langLabel">EN</span></button>
+            <a href="./login.html" class="nav-btn highlight" id="topAuthBtn">
+                <span data-i18n="login_title">Login</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="stage-container" id="stageContainer">
+        <div class="message-list" id="msgList"></div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeKeyboard()"></div>
+
+    <!-- 输入栏 -->
+    <div class="input-bar-wrapper" id="inputBar" onclick="openKeyboard()">
+        <div class="fake-input-box">
+            <div class="input-field">
+                <span id="inputTextPlaceholder" style="display:none;"></span>
+                <span id="userTypedText" style="color:#fff;"></span>
+                <span class="cursor"></span>
+            </div>
+            <div class="send-btn-icon" onclick="handleSendAction(event)">↑</div>
+        </div>
+    </div>
+
+    <!-- 虚拟键盘 -->
+    <div class="keyboard-drawer" id="keyboard">
+        <!-- 预测栏 -->
+        <div class="suggestion-bar">
+            <div class="sugg-center" id="contactIcons"></div>
+            <div class="sugg-right">
+                <div class="sugg-icon-btn" onclick="closeKeyboard()">
+                    <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 键盘主体 -->
+        <div class="keyboard-body">
+            <div class="kb-grid" id="kbGrid"></div>
+            <div class="kb-action-row">
+                <a href="./tutorial.html" class="key key-tutorial" data-i18n="kb_tutorial">
+                    📖 Tutorial
+                </a>
+                <div class="key key-go" onclick="handleSendAction(event)" data-i18n="kb_go">GO</div>
+            </div>
+            <div class="kb-footer">
+                <span>© 2025 Recrong</span>
+                <span>|</span>
+                <a href="./tos.html" target="_blank" data-i18n="link_tos">Terms & Privacy</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 交互逻辑 (键盘) ---
+        const inputBar = document.getElementById('inputBar');
+        const keyboard = document.getElementById('keyboard');
+        const overlay = document.getElementById('overlay');
+        const stage = document.getElementById('stageContainer');
+
+        let userSendCount = 0;
+
+        function openKeyboard() {
+            inputBar.classList.add('keyboard-active');
+            keyboard.classList.add('show');
+            overlay.classList.add('show');
+            stage.classList.add('keyboard-active');
+            setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 300);
+        }
+
+        function closeKeyboard() {
+            inputBar.classList.remove('keyboard-active');
+            keyboard.classList.remove('show');
+            overlay.classList.remove('show');
+            stage.classList.remove('keyboard-active');
+        }
+
+        function handleSendAction(e) {
+            e.stopPropagation();
+            window.location.href = './register.html';
+        }
+
+        function handleKeyClick(baseCode) {
+            addStickerMsg(baseCode, true);
+
+            userSendCount++;
+            if (userSendCount > 3) {
+                setTimeout(() => {
+                    window.location.href = './login.html';
+                }, 800);
+            }
+        }
+
+        function renderKeyboard() {
+            const grid = document.getElementById('kbGrid');
+            grid.innerHTML = '';
+
+            const indices = [];
+            // 确保 turtles.js 加载成功
+            if (typeof turtleBases === 'undefined') {
+                console.error("turtles.js not loaded!");
+                return;
+            }
+
+            while(indices.length < 9) {
+                const r = Math.floor(Math.random() * turtleBases.length);
+                if(indices.indexOf(r) === -1) indices.push(r);
+            }
+
+            indices.forEach(idx => {
+                const baseCode = turtleBases[idx];
+                const key = document.createElement('div');
+                key.className = 'key';
+
+                const imgUrl = `https://www.gstatic.com/android/keyboard/emojikitchen/20201001/${baseCode}/${baseCode}_u1f422.png`;
+                const img = document.createElement('img');
+                img.src = imgUrl;
+                img.alt = "Turtle Key";
+                img.setAttribute('crossorigin', 'anonymous');
+                img.setAttribute('referrerpolicy', 'no-referrer');
+                img.onerror = () => { key.style.visibility = 'hidden'; };
+
+                key.appendChild(img);
+
+                key.onclick = (e) => {
+                    e.stopPropagation();
+                    handleKeyClick(baseCode);
+                };
+                grid.appendChild(key);
+            });
+        }
+
+        // --- 消息循环逻辑 ---
+        const msgList = document.getElementById('msgList');
+        const MAX_ITEMS = 9;
+
+        function getFormattedTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hour = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const sec = String(now.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${min}:${sec}`;
+        }
+
+        function addSystemLine() {
+            const timeStr = getFormattedTime();
+            const div = document.createElement('div');
+            div.className = 'message-row row-sys';
+            div.innerHTML = `<div class="sys-badge"><span class="icon-clock">⏰</span> : ${timeStr}</div>`;
+            appendToStream(div);
+        }
+
+        function addStickerMsg(code, isUser = false) {
+            const baseCode = code || turtleBases[Math.floor(Math.random() * turtleBases.length)];
+            const imgUrl = `https://www.gstatic.com/android/keyboard/emojikitchen/20201001/${baseCode}/${baseCode}_u1f422.png`;
+
+            const div = document.createElement('div');
+            div.className = `message-row row-sticker ${isUser ? 'user-sent' : ''}`;
+
+            div.innerHTML = `<img src="${imgUrl}" class="sticker-img" alt="Turtle"
+                                  crossorigin="anonymous" referrerpolicy="no-referrer"
+                                  onerror="this.style.display='none'">`;
+            appendToStream(div);
+        }
+
+        function appendToStream(element) {
+            msgList.appendChild(element);
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            const rows = document.querySelectorAll('.message-row');
+            if (rows.length > MAX_ITEMS * 2) {
+                if (rows[0]) rows[0].classList.add('fade-out');
+                if (rows[1]) rows[1].classList.add('fade-out');
+                setTimeout(() => {
+                    if(rows[0] && rows[0].parentNode) rows[0].remove();
+                    if(rows[1] && rows[1].parentNode) rows[1].remove();
+                }, 800);
+            }
+        }
+
+        function scheduleNextCycle() {
+            const randomDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
+            setTimeout(() => { runCycle(); scheduleNextCycle(); }, randomDelay);
+        }
+
+        function runCycle() {
+            addSystemLine();
+            setTimeout(() => { addStickerMsg(); }, 600);
+        }
+
+        // --- 初始化 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderKeyboard();
+
+            const userPerms = localStorage.getItem('userPermissions');
+            if (userPerms) {
+                const authBtn = document.getElementById('topAuthBtn');
+                authBtn.href = './dashboard.html';
+                authBtn.innerHTML = `<span data-i18n="console">Console</span>`;
+
+                window.handleSendAction = (e) => {
+                    e.stopPropagation();
+                    window.location.href = './dashboard.html';
+                };
+            }
+
+            if(window.applyPageLanguage) window.applyPageLanguage();
+
+            if (typeof CONTACT_INFO !== 'undefined') {
+                const center = document.getElementById('contactIcons');
+
+                if (CONTACT_INFO.GITHUB) {
+                    center.innerHTML += `
+                        <a href="${CONTACT_INFO.GITHUB}" target="_blank" class="sugg-icon-btn">
+                            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                        </a>
+                    `;
+                }
+                if (CONTACT_INFO.TELEGRAM) {
+                    center.innerHTML += `
+                        <a href="${CONTACT_INFO.TELEGRAM}" target="_blank" class="sugg-icon-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </a>
+                    `;
+                }
+                if (CONTACT_INFO.EMAIL) {
+                    center.innerHTML += `
+                        <a href="mailto:${CONTACT_INFO.EMAIL}" class="sugg-icon-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                        </a>
+                    `;
+                }
+            }
+
+            runCycle(); 
+            scheduleNextCycle();
+        });
+    </script>
+</body>
+</html>

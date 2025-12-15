@@ -1,0 +1,27 @@
+name = "recrong-w"
+main = "recrong-w/src/index.js"
+compatibility_date = "2025-12-12"
+
+# ---- D1 数据库 ----
+[[d1_databases]]
+binding = "DB"
+database_name = "recrong"
+database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+# ---- 环境变量 ----
+[vars]
+ALLOWED_ORIGINS = "！修改为recrong-p绑定的域名！"
+JWT_SECRET = "一定要自己重新生成" # 一定要自己重新生成
+
+# ---- 定时任务 ----
+[triggers]
+crons = ["0 0 * * *"]
+
+# ---- 云端日志 ----
+#[observability]
+#[observability.logs]
+#enabled = true
+#head_sampling_rate = 1
+#invocation_logs = true
+#persist = true
+

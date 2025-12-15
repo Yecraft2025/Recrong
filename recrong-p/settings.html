@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <title>Recron - Settings</title>
+    <style>
+        :root { --primary: #0070f3; --danger: #ef4444; --success: #10b981; --warning: #f59e0b; --bg: #f5f7fa; --card-bg: #ffffff; --text: #333; --border: #eaeaea; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+        .container { max-width: 600px; margin: 20px auto; padding: 0 20px; }
+        @media (max-width: 600px) { .container { padding: 15px; margin: 0; } }
+
+        /* 顶部导航 */
+        .nav-header { margin-bottom: 10px; }
+        .nav-back { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #666; font-weight: 500; font-size: 1rem; transition: color 0.2s; padding: 5px 0; }
+        .nav-back:hover { color: var(--primary); }
+        .nav-arrow { font-size: 1.2rem; line-height: 1; margin-bottom: 2px; }
+
+        /* 工具栏 */
+        .toolbar { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .toolbar h1 { margin: 0; font-size: 1.25rem; font-weight: 700; color: #111; }
+
+        /* 卡片容器 */
+        .card {
+            background: var(--card-bg); padding: 25px; border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .card-header { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .card-header h2 { margin: 0; font-size: 1.1rem; color: #444; }
+
+        /* 表单元素 */
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem; color: #555; }
+        input {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+            border-radius: 8px; background: #f9fafb; font-size: 0.95rem;
+            transition: all 0.2s; box-sizing: border-box;
+        }
+        input:focus { background: #fff; border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0,112,243,0.1); }
+
+        /* 按钮样式 */
+        button {
+            padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; font-size: 0.95rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .btn-primary { background-color: var(--primary); color: white; width: 100%; box-shadow: 0 4px 12px rgba(0,118,255,0.25); }
+        .btn-primary:hover:not(:disabled) { background-color: #0060df; }
+
+        .btn-secondary { background-color: #fff; border: 1px solid var(--border); color: #444; padding: 6px 12px; font-size: 0.85rem; }
+        .btn-secondary:hover { border-color: #999; color: #000; }
+
+        .btn-danger { background-color: #fff0f0; color: var(--danger); border: 1px solid transparent; }
+        .btn-danger:hover { border-color: var(--danger); background-color: #fee2e2; }
+
+        .btn-link { background: none; color: var(--primary); padding: 0; font-weight: 500; font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; margin-bottom: 20px; }
+        .btn-link:hover { text-decoration: underline; }
+
+        /* 用户信息展示 */
+        .user-profile {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 25px;
+            background: #fff; padding: 15px; border-radius: 12px; border: 1px solid var(--border);
+        }
+        .avatar-placeholder {
+            width: 40px; height: 40px; background: #e0e7ff; color: var(--primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.1rem;
+            flex-shrink: 0; /* 防止被挤压 */
+        }
+        .user-details {
+            display: flex; flex-direction: column;
+        }
+        .user-details div:first-child { font-weight: 600; font-size: 0.85rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+        .user-details div:last-child { font-weight: 700; font-size: 1.1rem; color: #111; }
+
+        /* 用户 ID 标签样式 */
+        .user-id-tag {
+            margin-left: auto;
+            background: #fff7ed; /* 浅橙色背景 */
+            border: 1px solid #fdba74; /* 橙色边框 */
+            color: #c2410c; /* 深橙色文字 */
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-family: "SF Mono", "Roboto Mono", monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 5px rgba(234, 88, 12, 0.1);
+        }
+        .hash-symbol {
+            color: #fb923c; /* 亮橙色井号 */
+            margin-right: 2px;
+            font-weight: 500;
+        }
+
+        /* Toast & Modal */
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
+        .toast { background: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); font-size: 0.95rem; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: slideDown 0.3s ease-out; pointer-events: all; border-left: 4px solid transparent; }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.2s; }
+        .modal-overlay.show { opacity: 1; }
+        .modal-box { background: white; width: 90%; max-width: 400px; border-radius: 16px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.2s; }
+        .modal-overlay.show .modal-box { transform: scale(1); }
+        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+        .modal-msg { color: #555; margin-bottom: 20px; line-height: 1.5; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        /* 弹窗按钮等宽 */
+        .modal-actions button { min-width: 80px; }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            .hide-mobile { display: none; }
+            .toolbar h1 { font-size: 1.1rem; }
+            .card { padding: 20px; }
+        }
+
+        /* 底部页脚样式 */
+        .footer-info {
+            text-align: center;
+            margin-top: 40px;
+            padding-bottom: 30px;
+            color: #999;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        }
+        .footer-link:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+        .copyright {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 15px;
+        }
+        /* 针对协议链接的样式 */
+        .copyright a {
+            color: #666;       /* 链接颜色与文字一致 */
+            text-decoration: none;
+            transition: color 0.2s;
+            font-weight: 500;
+        }
+
+        .copyright a:hover {
+            color: var(--primary); /* 悬停时变黑/主色 */
+            text-decoration: none;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+    <script src="/config.js?v=1.0.1"></script>
+    <script src="/i18n.js?v=1.0.1"></script>
+</head>
+<body>
+
+    <div id="toast-container"></div>
+    <div class="container">
+        <!-- 顶部返回区域 (独立一行) -->
+        <div class="nav-header">
+            <a href="/dashboard.html" class="nav-back">
+                <span class="nav-arrow">←</span>
+                <span data-i18n="back_dashboard">返回主面板</span>
+            </a>
+        </div>
+
+        <!-- 工具栏 (标题 + 语言切换) -->
+        <div class="toolbar">
+            <h1 data-i18n="settings_title">设置</h1>
+            <!-- 语言切换 -->
+            <button class="btn-secondary" onclick="toggleLanguage()">🌐 <span id="langLabel">EN</span></button>
+        </div>
+
+        <!-- 用户信息卡片 -->
+        <div class="user-profile">
+            <div class="avatar-placeholder">👤</div>
+            <div class="user-details">
+                <div data-i18n="user_label">当前用户</div>
+                <div id="userPhoneDisplay">...</div>
+                </div>
+            <!-- 用户 ID 胶囊标签 -->
+            <div class="user-id-tag">
+                <span class="hash-symbol">#</span><span id="userIdDisplay">--</span>
+            </div>
+        </div>
+
+        <!-- 修改密码卡片 -->
+        <div class="card" id="pwdCard">
+            <div class="card-header">
+                <h2 data-i18n="change_pwd_title">修改密码</h2>
+            </div>
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label for="currentPassword" data-i18n="label_curr_pwd">当前密码</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword" data-i18n="label_new_pwd">新密码</label>
+                    <input type="password" id="newPassword" required minlength="6">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmNewPassword" data-i18n="label_confirm_pwd">确认新密码</label>
+                    <input type="password" id="confirmNewPassword" required minlength="6">
+                </div>
+
+                <button type="submit" class="btn-primary" id="pwdSubmitBtn">
+                    <span data-i18n="btn_confirm_change">确认修改</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- 退出登录区域 -->
+        <div class="card" style="border-color: #fee2e2;">
+            <div class="card-header" style="border-bottom:none; padding-bottom:0;">
+                <h2 data-i18n="account_actions" style="color:var(--danger)">账户操作</h2>
+            </div>
+            <div style="padding-top:15px;">
+                <!-- 显式设置宽度为 100%，只影响这个按钮 -->
+                <button id="logoutBtn" class="btn-danger" style="width: 100%;" data-i18n="btn_logout">退出登录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认弹窗 -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-title" id="confirmTitle">Confirm</div>
+            <div class="modal-msg" id="confirmMsg">Message</div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="confirmCancel" data-i18n="cancel">取消</button>
+                <button class="btn-danger" id="confirmOk" data-i18n="confirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部联系信息 (动态加载) -->
+    <div class="footer-info">
+        <div class="contact-links">
+            <a id="linkGithub" target="_blank" class="footer-link" style="display:none">
+                <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                GitHub
+            </a>
+            <a id="linkEmail" class="footer-link" style="display:none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                Email
+            </a>
+            <a id="linkTelegram" target="_blank" class="footer-link" style="display:none">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                Telegram
+            </a>
+        </div>
+
+        <div class="copyright">
+            © 2025 Recrong. All rights reserved.
+            <span style="margin: 0 5px;">|</span>
+            <a href="/tos.html" target="_blank">ToS & Privacy Policy</a>
+        </div>
+    </div>
+    <script>
+        // ================= 工具函数 (与 Dashboard 保持一致) =================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.animation = 'fadeOut 0.3s forwards'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function showConfirm(title, message) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmModal');
+                document.getElementById('confirmTitle').textContent = title;
+                document.getElementById('confirmMsg').textContent = message;
+
+                const okBtn = document.getElementById('confirmOk');
+                const cancelBtn = document.getElementById('confirmCancel');
+
+                okBtn.textContent = t('confirm'); // 确保按钮文字也是翻译过的
+                cancelBtn.textContent = t('cancel');
+
+                modal.style.display = 'flex'; modal.offsetHeight; modal.classList.add('show');
+
+                const cleanup = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => { modal.style.display = 'none'; }, 200);
+                    okBtn.replaceWith(okBtn.cloneNode(true));
+                    cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+                };
+
+                document.getElementById('confirmOk').onclick = () => { cleanup(); resolve(true); };
+                document.getElementById('confirmCancel').onclick = () => { cleanup(); resolve(false); };
+            });
+        }
+
+        // 初始化底部联系方式
+        (function initFooter() {
+            // 防止 config.js 未更新导致报错
+            if (typeof CONTACT_INFO === 'undefined') return;
+
+            const elGithub = document.getElementById('linkGithub');
+            const elEmail = document.getElementById('linkEmail');
+            const elTg = document.getElementById('linkTelegram');
+
+            // 配置 GitHub
+            if (CONTACT_INFO.GITHUB) {
+                elGithub.href = CONTACT_INFO.GITHUB;
+                elGithub.style.display = 'inline-flex';
+            }
+
+            // 配置 Email (自动添加 mailto:)
+            if (CONTACT_INFO.EMAIL) {
+                elEmail.href = 'mailto:' + CONTACT_INFO.EMAIL;
+                elEmail.style.display = 'inline-flex';
+            }
+
+            // 配置 Telegram
+            if (CONTACT_INFO.TELEGRAM) {
+                elTg.href = CONTACT_INFO.TELEGRAM;
+                elTg.style.display = 'inline-flex';
+            }
+        })();
+
+        // ================= 逻辑处理 =================
+        const phoneNumber = localStorage.getItem('userPhoneNumber');
+
+        // 权限检查：修改密码
+        const userPerms = parseInt(localStorage.getItem('userPermissions') || '0', 10);
+        const PERM_CHANGE_PASSWORD = 2;
+
+        // 登录检查
+        if (!userPerms) {
+            window.location.href = '/login.html';
+        }
+
+        // 显示用户信息
+        const phoneDisplay = document.getElementById('userPhoneDisplay');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+
+        const userId = localStorage.getItem('userId'); // 读取 ID
+
+        if (phoneNumber) {
+            phoneDisplay.textContent = phoneNumber;
+            phoneDisplay.removeAttribute('data-i18n');
+        } else {
+            phoneDisplay.setAttribute('data-i18n', 'msg_unknown_user');
+            phoneDisplay.textContent = t('msg_unknown_user');
+        }
+
+        // 显示 ID
+        if (userId) {
+            userIdDisplay.textContent = userId || '-';
+        }
+
+        if ((userPerms & PERM_CHANGE_PASSWORD) !== PERM_CHANGE_PASSWORD) {
+            // 直接隐藏整个卡片
+            document.getElementById('pwdCard').style.display = 'none';
+        }
+
+        // 修改密码提交
+        const form = document.getElementById('changePasswordForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword !== confirmNewPassword) {
+                showToast(t('msg_pwd_mismatch'), 'error');
+                return;
+            }
+
+            const submitButton = document.getElementById('pwdSubmitBtn');
+            submitButton.disabled = true;
+            submitButton.textContent = t('msg_saving');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/user/change-password`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast(t('msg_success_redirect'), 'success');
+
+                    // 清除本地数据
+                    localStorage.removeItem('userPhoneNumber');
+                    localStorage.removeItem('userPermissions');
+                    localStorage.removeItem('userId');
+
+                    setTimeout(() => { window.location.href = '/login.html'; }, 1500);
+                } else {
+                    // 优先使用错误码翻译
+                    const msg = result.code ? t(result.code) : result.error;
+                    throw new Error(msg);
+                }
+            } catch (err) {
+                showToast(err.message || t('msg_network_error'), 'error');
+                submitButton.disabled = false;
+                // 恢复按钮内容，重新翻译，确保切换语言后正常
+                submitButton.innerHTML = `<span data-i18n="btn_confirm_change">${t('btn_confirm_change')}</span>`;
+            }
+        });
+
+        // 退出登录 (使用 Confirm 弹窗)
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            // 弹出确认框
+            const confirmed = await showConfirm(t('btn_logout'), t('msg_confirm_logout'));
+            if (!confirmed) return;
+
+            try {
+                await fetch(`${API_BASE_URL}/api/logout`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (e) {
+                console.error("Logout error", e);
+            } finally {
+                localStorage.removeItem('userPhoneNumber');
+                localStorage.removeItem('userPermissions');
+                localStorage.removeItem('userId');
+                window.location.href = '/login.html';
+            }
+        });
+    </script>
+</body>
+</html>

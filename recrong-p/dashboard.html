@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="en" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <title>Recrong - Dashboard</title>
+    <style>
+        :root { --primary: #0070f3; --danger: #ef4444; --warning: #f59e0b; --success: #10b981; --info: #3b82f6; --bg: #f5f7fa; --card-bg: #ffffff; --text: #333; --border: #eaeaea; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 20px 100px 20px; /* 上 右 下 左 */
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px 10px 100px 10px;
+            }
+        }
+
+        /* 顶部栏 */
+        .toolbar {
+            background: var(--card-bg); padding: 15px; border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex; flex-direction: column; gap: 15px; /* 上下分两行 */
+            margin-bottom: 15px;
+        }
+
+        /* 第一行：标题 + 用户信息 + 设置按钮 */
+        .toolbar-top {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;
+            width: 100%;
+        }
+
+        /* 让标题区域占据剩余空间，把设置按钮挤到最右边 */
+        .title-area {
+            flex: 1;
+            min-width: 0; /* 防止文本溢出撑开容器 */
+            margin-right: 10px;
+        }
+
+        .title-area h1 { margin: 0; font-size: 1.2rem; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-info { font-size: 0.85rem; color: #666; display: block; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .toolbar-bottom { display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* 按钮样式 */
+        button { padding: 8px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; }
+        button:active { transform: scale(0.96); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-primary { background-color: var(--primary); color: white; box-shadow: 0 4px 14px 0 rgba(0,118,255,0.2); }
+        .btn-primary:hover:not(:disabled) { background-color: #0060df; }
+
+        .btn-secondary { background-color: #fff; border: 1px solid var(--border); color: #444; }
+        .btn-secondary:hover:not(:disabled) { border-color: #999; color: #000; }
+
+        .btn-danger { background-color: #fff0f0; color: var(--danger); border: 1px solid transparent; }
+        .btn-danger:hover { border-color: var(--danger); }
+
+        .btn-icon { background: transparent; padding: 6px; font-size: 1.2rem; color: #999; border-radius: 50%; line-height: 1; }
+        .btn-icon:hover { color: var(--danger); background: #fff0f0; }
+
+        /* 移动端适配工具栏 */
+        @media (max-width: 600px) {
+            .toolbar-bottom { justify-content: space-between; } /* 按钮撑满 */
+            .toolbar-bottom button { flex: 1; padding: 10px; } /* 按钮变大方便点击 */
+        }
+
+        /* 表格区域 */
+        .table-container { background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; position: relative; }
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; min-height: 200px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
+        th {
+            background-color: #fafafa; font-weight: 600; color: #666; white-space: nowrap;
+            position: sticky; top: 0; z-index: 10;
+            cursor: pointer; user-select: none; transition: background 0.2s;
+        }
+        th:hover { background-color: #f0f0f0; color: #333; }
+        /* 排序图标 */
+        .sort-icon { margin-left: 4px; font-size: 0.8em; color: #ccc; display: inline-block; width: 10px; }
+        th.sort-asc .sort-icon::after { content: '▲'; color: var(--primary); }
+        th.sort-desc .sort-icon::after { content: '▼'; color: var(--primary); }
+
+        input, select, textarea { width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 6px; background: transparent; font-size: 0.9rem; font-family: inherit; transition: all 0.2s; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { background: #fff; border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(0,112,243,0.1); }
+        ::placeholder { color: #ccc; opacity: 1; }
+
+        /* 错误校验样式 */
+        input.invalid, textarea.invalid { border: 1px solid var(--danger); background-color: #fff5f5; }
+
+        /* 视觉倒计时徽章 */
+        .time-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 4px;
+            white-space: nowrap;
+        }
+        .badge-overdue { background: #fee2e2; color: #991b1b; } /* 红色 */
+        .badge-urgent  { background: #ffedd5; color: #9a3412; } /* 橙色 */
+        .badge-soon    { background: #dbeafe; color: #1e40af; } /* 蓝色 */
+        .badge-future  { background: #d1fae5; color: #065f46; } /* 绿色 */
+        .badge-stopped { background: #f3f4f6; color: #6b7280; } /* 灰色 */
+
+        /* 行状态高亮 */
+        tr { border-left: 4px solid transparent; transition: background 0.2s; }
+        tr.status-running { border-left-color: var(--success); }
+        tr.status-stopped { border-left-color: #ccc; opacity: 0.85; }
+
+        tr.changed td { background-color: #fffbf0; }
+        tr.new-row td { background-color: #f0fdf4; }
+
+        /* 底部保存条 */
+        .save-bar {
+            position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%) translateY(20px); /* 默认下移一点 */
+            background: #1f2937; color: white; padding: 10px 20px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex; align-items: center; gap: 15px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 90; width: max-content; max-width: 90%;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .save-bar.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; pointer-events: none; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
+        .toast { background: white; padding: 12px 20px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); font-size: 0.95rem; font-weight: 500; display: flex; align-items: center; gap: 10px; animation: slideDown 0.3s ease-out; pointer-events: all; border-left: 4px solid transparent; }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.info { border-left-color: var(--primary); }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.2s; }
+        .modal-overlay.show { opacity: 1; }
+        .modal-box { background: white; width: 90%; max-width: 400px; border-radius: 16px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.2s; }
+        .modal-overlay.show .modal-box { transform: scale(1); }
+        .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .modal-msg { color: #555; margin-bottom: 20px; line-height: 1.5; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+        /* Timer Modal Specific */
+        .timer-modal { max-width: 450px; }
+        .timer-body { max-height: 60vh; overflow-y: auto; padding-right: 5px; }
+        .timer-item {
+            background: #f9fafb; border: 1px solid var(--border); padding: 12px; border-radius: 8px; margin-bottom: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .timer-item:hover { border-color: var(--primary); background: #f0f7ff; }
+        /* 状态颜色 */
+        .timer-item.success { background: #ecfdf5; border-color: var(--success); }
+        .timer-item.failed { background: #fef2f2; border-color: var(--danger); }
+
+        .timer-info { flex: 1; min-width: 0; padding-right: 10px; }
+        .timer-info div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* 状态文本 */
+        .status-text-success { color: var(--success); font-weight: bold; }
+        .status-text-failed { color: var(--danger); font-weight: bold; }
+        .status-text-running { color: var(--primary); font-weight: bold; font-family: monospace; }
+
+        .chip-btn { padding: 4px 10px; font-size: 0.8rem; background: #e0e7ff; color: var(--primary); border-radius: 15px; border:none; margin-right: 5px; margin-bottom: 5px; cursor: pointer; transition: background 0.2s; }
+        .chip-btn:hover { background: #c7d2fe; }
+
+        /* 提示信息 Icon 和 展开面板 */
+        .info-icon { cursor: pointer; color: var(--warning); margin-left: 5px; font-size: 1.2rem; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #fffbeb; }
+        .info-panel {
+            background: #fffbeb; border: 1px solid #fcd34d; color: #92400e;
+            padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; line-height: 1.5;
+            display: none;
+        }
+        .info-panel ul { margin: 5px 0 0 0; padding-left: 20px; }
+
+        @media (max-width: 600px) {
+            .container { padding: 10px; }
+            .table-container { border-radius: 8px; }
+            .toolbar { flex-direction: row; flex-wrap: wrap; }
+            .toolbar-title { min-width: 100px; }
+            .btn-group { margin-left: auto; }
+            .btn-group button { padding: 6px 12px; font-size: 0.8rem; }
+            .modal-overlay { align-items: flex-end; }
+            .modal-box { width: 100%; max-width: 100%; border-radius: 16px 16px 0 0; margin: 0; transform: translateY(100%); animation: slideUp 0.3s forwards; }
+            @keyframes slideUp { to { transform: translateY(0); } }
+        }
+
+        /* 权限控制辅助类 */
+        .hidden { display: none !important; }
+    </style>
+    <script src="/config.js?v=1.0.1"></script>
+    <script src="/i18n.js?v=1.0.1"></script>
+</head>
+<body>
+    <div id="toast-container"></div>
+
+    <div class="container">
+        <div class="toolbar">
+            <div class="toolbar-top">
+                <div class="title-area">
+                    <h1>Recrong <span data-i18n="console">控制台</span></h1>
+                    <span class="user-info">
+                        <span data-i18n="user_label">用户</span>:
+                        <span id="userPhoneDisplay">...</span>
+                    </span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-secondary" onclick="toggleLanguage()">🌐 <span id="langLabel">EN</span></button>
+                    <button class="btn-secondary" onclick="location.href='/settings.html'">⚙️ </button>
+                </div>
+            </div>
+
+            <div class="toolbar-bottom">
+                <button class="btn-secondary" id="timerBtn" style="display:none" onclick="openTimerModal()">⏳ <span data-i18n="browser_timer">定时器</span></button>
+                <button class="btn-secondary" id="checkNowBtn">⚡ <span data-i18n="trigger_now">立即触发</span></button>
+                <button class="btn-primary" id="addBtn" onclick="addNewRow()">+ <span data-i18n="new_task">新建</span></button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="table-scroll">
+                <table id="remindersTable">
+                    <thead>
+                        <tr>
+                            <th onclick="handleSort('trigger_datetime')" style="min-width: 130px;"><span data-i18n="col_date">提醒日期</span><span class="sort-icon" id="sort-trigger_datetime"></span></th>
+                            <th onclick="handleSort('cycle_days')" style="min-width: 60px;"><span data-i18n="col_cycle">循环(天)</span><span class="sort-icon" id="sort-cycle_days"></span></th>
+                            <th onclick="handleSort('from_number')" style="min-width: 110px;"><span data-i18n="col_sender">发送号码</span><span class="sort-icon" id="sort-from_number"></span></th>
+                            <th onclick="handleSort('body')" style="min-width: 200px;"><span data-i18n="col_content">内容</span><span class="sort-icon" id="sort-body"></span></th>
+                            <th onclick="handleSort('status')" style="min-width: 90px;"><span data-i18n="col_status">状态</span><span class="sort-icon" id="sort-status"></span></th>
+                            <th class="action-cell delete-col" style="min-width: 50px; cursor: default;"><span data-i18n="col_del">删除</span></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div id="loading" style="padding: 40px; text-align: center; color: #888;" data-i18n="loading">正在加载数据...</div>
+        </div>
+    </div>
+
+    <!-- 底部保存条 -->
+    <div class="save-bar" id="saveBar">
+        <span class="save-info" id="saveInfo">检测到变动</span>
+        <button class="btn-success" onclick="saveAllChanges()" id="saveBtn" style="background:var(--success); color:white; border:none; font-weight:bold;" data-i18n="save_changes">保存更改</button>
+        <button class="btn-secondary" onclick="renderTable(originalData)" style="background:#4b5563; color:#eee; border:none;" data-i18n="discard">放弃</button>
+    </div>
+
+    <!-- 通用确认弹窗 -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <div class="modal-title" id="confirmTitle">Confirm</div>
+            <div class="modal-msg" id="confirmMsg">Message</div>
+            <div class="modal-actions">
+                <button class="btn-secondary" id="confirmCancel" data-i18n="cancel">取消</button>
+                <button class="btn-danger" id="confirmOk" data-i18n="confirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浏览器定时器弹窗 -->
+    <div class="modal-overlay" id="timerModal">
+        <div class="modal-box timer-modal">
+            <div class="modal-title">
+                <div style="display:flex; align-items:center;">
+                    <span data-i18n="browser_timer_title">浏览器定时发送</span>
+                    <span class="info-icon" onclick="toggleInfoPanel()">ⓘ</span>
+                </div>
+                <button class="btn-icon" onclick="closeTimerModal()" style="font-size:1.5rem;">×</button>
+            </div>
+            <div class="timer-body">
+                <!-- 提示信息面板 (默认隐藏) -->
+                <div class="info-panel" id="timerInfoPanel">
+                    <b data-i18n="timer_warn_title">⚠️ 重要提示：</b>
+                    <ul data-i18n="timer_warn_list">
+                        <li><b>临时性</b>：任务仅在当前页面运行，关闭或刷新页面即丢失。</li>
+                        <li><b>本地化</b>：不会同步到服务器或其他设备。</li>
+                        <li><b>依赖性</b>：执行时需保持登录状态且配额充足。</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; font-weight:600; margin-bottom:5px;" data-i18n="label_trigger_time">触发时间:</label>
+                    <input type="datetime-local" id="tTime" step="1" style="background:#f9fafb; border:1px solid #ddd;">
+                    <div style="margin-top:8px;">
+                        <button class="chip-btn" onclick="addSeconds(1)">+1s</button>
+                        <button class="chip-btn" onclick="addSeconds(10)">+10s</button>
+                        <button class="chip-btn" onclick="addSeconds(60)">+1m</button>
+                        <button class="chip-btn" onclick="addSeconds(3600)">+1h</button>
+                    </div>
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; font-weight:600; margin-bottom:5px;" data-i18n="label_sender">发送号码:</label>
+                    <!-- 限制只能输入数字 -->
+                    <input type="tel" id="tFrom" placeholder="372..." style="background:#f9fafb; border:1px solid #ddd;" oninput="this.value = this.value.replace(/\D/g, '')">
+                </div>
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; font-weight:600; margin-bottom:5px;" data-i18n="label_content">内容:</label>
+                    <textarea id="tBody" rows="2" data-i18n-placeholder="ph_content" placeholder="填写短信内容..." style="background:#f9fafb; border:1px solid #ddd;"></textarea>
+                </div>
+                <button class="btn-primary" style="width:100%" onclick="addClientTimer()" data-i18n="btn_start_timer">启动定时任务</button>
+
+                <div style="margin-top:20px; border-top:1px solid #eee; padding-top:10px;">
+                    <h4 style="margin:0 0 10px 0;" data-i18n="queue_title">运行队列 (点击查看详情)</h4>
+                    <ul class="timer-list" id="activeTimersList" style="list-style:none; padding:0;"></ul>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= 工具函数 =================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showConfirm(title, message) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('confirmModal');
+                document.getElementById('confirmTitle').textContent = title;
+                document.getElementById('confirmMsg').textContent = message;
+
+                const okBtn = document.getElementById('confirmOk');
+                const cancelBtn = document.getElementById('confirmCancel');
+
+                // 翻译按钮
+                okBtn.textContent = t('confirm');
+                cancelBtn.textContent = t('cancel');
+
+                modal.style.display = 'flex'; modal.offsetHeight; modal.classList.add('show');
+                const cleanup = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => { modal.style.display = 'none'; }, 200);
+                    okBtn.replaceWith(okBtn.cloneNode(true));
+                    cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+                };
+
+                document.getElementById('confirmOk').onclick = () => { cleanup(); resolve(true); };
+                document.getElementById('confirmCancel').onclick = () => { cleanup(); resolve(false); };
+            });
+        }
+
+        // ================= 主逻辑 =================
+        const phoneNumber = localStorage.getItem('userPhoneNumber');
+        const userPermsStr = localStorage.getItem('userPermissions');
+
+        if (!userPermsStr) window.location.href = '/login.html';
+
+        const userPerms = parseInt(userPermsStr || '0', 10);
+        const PERM_VIEW_TASKS      = 4;
+        const PERM_MANAGE_TASKS    = 8;
+        const PERM_TRIGGER_TASKS   = 16;
+        const PERM_CLIENT_TIMERS   = 32;
+
+        function hasPerm(mask) { return (userPerms & mask) === mask; }
+
+        // 初始化语言
+        if (window.applyPageLanguage) window.applyPageLanguage();
+
+        // 显示手机号或未知
+        const phoneDisplay = document.getElementById('userPhoneDisplay');
+        if (phoneNumber) {
+            phoneDisplay.textContent = phoneNumber;
+            // 移除翻译属性，防止被覆盖
+            phoneDisplay.removeAttribute('data-i18n');
+        } else {
+            // 如果没有号码，加上翻译属性
+            phoneDisplay.setAttribute('data-i18n', 'msg_unknown_user');
+            phoneDisplay.textContent = t('msg_unknown_user');
+        }
+
+        if (!hasPerm(PERM_TRIGGER_TASKS)) document.getElementById('checkNowBtn').style.display = 'none';
+        if (!hasPerm(PERM_MANAGE_TASKS)) {
+            document.getElementById('addBtn').style.display = 'none';
+            // CSS 隐藏删除列
+            const style = document.createElement('style');
+            style.innerHTML = '.delete-col { display: none !important; }';
+            document.head.appendChild(style);
+        }
+        if (hasPerm(PERM_CLIENT_TIMERS)) {
+            document.getElementById('timerBtn').style.display = 'inline-block';
+        }
+
+        let originalData = [];
+        // 排序状态
+        let sortState = { col: null, dir: 'asc' };
+
+        // 初始化
+        fetchData();
+
+        // ================= 数据交互逻辑 =================
+        async function fetchData() {
+            const loading = document.getElementById('loading');
+            if (!hasPerm(PERM_VIEW_TASKS)) {
+                loading.innerHTML = `<span style="color:var(--danger)">${t('msg_no_perm_view')}</span>`;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/reminders`, { credentials: 'include', headers: { 'Content-Type': 'application/json' } });
+                if (!res.ok) {
+                    if (res.status === 401) { localStorage.clear(); window.location.href = '/login.html'; return; }
+
+                    // 尝试解析后端返回的 JSON 错误
+                    const json = await res.json().catch(() => ({}));
+                    const errorMsg = json.code ? t(json.code) : (json.error || t('msg_network_error'));
+                    throw new Error(errorMsg);
+                }
+                const data = await res.json();
+                if (!Array.isArray(data)) throw new Error("Data format error");
+                originalData = JSON.parse(JSON.stringify(data));
+                renderTable(data);
+                loading.style.display = 'none';
+            } catch (e) {
+                loading.innerHTML = `<span style="color:var(--danger)">${e.message}</span>`;
+                showToast(e.message, 'error');
+            }
+        }
+
+        // 抓取当前页面上的所有数据
+        function getTableDataFromDOM() {
+            const rows = Array.from(document.querySelectorAll('#tableBody tr'));
+            return rows.map(tr => ({
+                id: tr.dataset.id ? parseInt(tr.dataset.id) : null,
+                trigger_datetime: tr.querySelector('[name="date"]').value,
+                cycle_days: parseInt(tr.querySelector('[name="cycle"]').value) || 0,
+                from_number: tr.querySelector('[name="from"]').value,
+                body: tr.querySelector('[name="body"]').value,
+                status: tr.querySelector('[name="status"]').value,
+            }));
+        }
+
+        // 排序逻辑
+        function handleSort(col) {
+            // 获取当前最新数据
+            let currentData = getTableDataFromDOM();
+
+            // 更新排序状态
+            if (sortState.col === col) {
+                sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortState.col = col;
+                sortState.dir = 'asc';
+            }
+
+            // 执行排序
+            currentData.sort((a, b) => {
+                let valA = a[col];
+                let valB = b[col];
+                // 处理空值
+                if (valA == null) valA = "";
+                if (valB == null) valB = "";
+
+                // 字符串比较
+                if (typeof valA === 'string') valA = valA.toLowerCase();
+                if (typeof valB === 'string') valB = valB.toLowerCase();
+
+                if (valA < valB) return sortState.dir === 'asc' ? -1 : 1;
+                if (valA > valB) return sortState.dir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // 重新渲染
+            renderTable(currentData);
+
+            // 更新表头图标
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            const activeTh = document.querySelector(`th[onclick="handleSort('${col}')"]`);
+            if (activeTh) {
+                activeTh.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+
+            // 恢复黄色高亮状态
+            refreshDirtyState();
+        }
+
+        // 重新计算每一行是否变动
+        function refreshDirtyState() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(tr => {
+                const id = tr.dataset.id ? parseInt(tr.dataset.id) : null;
+                if (!id) {
+                    // 没有 ID 的是新行，无需特殊处理
+                    return;
+                }
+
+                // 找到原始数据
+                const orig = originalData.find(o => o.id === id);
+                if (!orig) return; // 理论不应发生
+
+                // 获取当前 DOM 值
+                const currDate = tr.querySelector('[name="date"]').value;
+                const currCycle = parseInt(tr.querySelector('[name="cycle"]').value) || 0;
+                const currFrom = tr.querySelector('[name="from"]').value;
+                const currBody = tr.querySelector('[name="body"]').value;
+                const currStatus = tr.querySelector('[name="status"]').value;
+                const isChanged = (currDate !== orig.trigger_datetime || currCycle !== orig.cycle_days || currFrom !== orig.from_number || currBody !== orig.body || currStatus !== orig.status);
+                isChanged ? tr.classList.add('changed') : tr.classList.remove('changed');
+            });
+            updateSaveBarState();
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            data.forEach(item => tbody.appendChild(createRow(item)));
+            updateSaveBarState();
+        }
+
+        // 计算天数差异
+        function getDaysDiff(targetDate) {
+            if (!targetDate) return null;
+            const now = new Date();
+            const target = new Date(targetDate);
+            now.setHours(0,0,0,0);
+            target.setHours(0,0,0,0);
+            const diffTime = target - now;
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // 生成时间徽章 HTML
+        function renderTimeBadge(dateStr, status) {
+            if (status !== 'running') return `<span class="time-badge badge-stopped">${t('time_stopped')}</span>`;
+            if (!dateStr) return '';
+
+            const days = getDaysDiff(dateStr);
+            let badgeClass = '', badgeText = '';
+            if (days < 0) { badgeClass = 'badge-overdue'; badgeText = `${t('time_overdue')} ${Math.abs(days)} ${t('day')}`; }
+            else if (days === 0) { badgeClass = 'badge-overdue'; badgeText = t('time_today'); }
+            else if (days === 1) { badgeClass = 'badge-urgent'; badgeText = t('time_tomorrow'); }
+            else if (days === 2) { badgeClass = 'badge-urgent'; badgeText = t('time_day_after'); }
+            else if (days > 2 && days <= 7) { badgeClass = 'badge-soon'; badgeText = `${days} ${t('time_days_later')}`; }
+            else { badgeClass = 'badge-future'; badgeText = `${days} ${t('time_days_later')}`; }
+            return `<span class="time-badge ${badgeClass}">${badgeText}</span>`;
+        }
+
+        function createRow(item = {}) {
+            const tr = document.createElement('tr');
+            tr.dataset.id = item.id || '';
+            if (!item.id) tr.classList.add('new-row');
+
+            const date = item.trigger_datetime || '';
+            const cycle = item.cycle_days ?? 0;
+            const from = item.from_number || '';
+            const body = item.body || '';
+            const status = item.status || 'running';
+
+            // 严格的权限控制：无权限则 disabled
+            const disabledAttr = hasPerm(PERM_MANAGE_TASKS) ? '' : 'disabled';
+            const isRunning = status === 'running';
+
+            // 设置行状态边框颜色
+            tr.className += isRunning ? ' status-running' : ' status-stopped';
+
+            const deleteHtml = hasPerm(PERM_MANAGE_TASKS)
+                ? `<td class="action-cell delete-col"><button class="btn-icon" onclick="removeRow(this)">×</button></td>`
+                : `<td class="delete-col"></td>`;
+
+            // 在日期输入框下方插入徽章
+            const timeBadgeHtml = renderTimeBadge(date, status);
+
+            tr.innerHTML = `
+                <td>
+                    <input type="date" name="date" value="${date}" oninput="markDirty(this)" ${disabledAttr}>
+                    ${timeBadgeHtml}
+                </td>
+                <td><input type="number" name="cycle" value="${cycle}" min="0" style="width:60px" oninput="markDirty(this)" ${disabledAttr}></td>
+                <!-- 限制只能输入数字 -->
+                <td><input type="tel" name="from" value="${from}" placeholder="${t('ph_from')}" oninput="this.value=this.value.replace(/\\D/g,''); markDirty(this)" ${disabledAttr}></td>
+                <td><textarea name="body" rows="1" placeholder="${t('ph_content')}" oninput="markDirty(this)" ${disabledAttr}>${body}</textarea></td>
+                <td>
+                    <select name="status" style="width:85px" onchange="markDirty(this)" ${disabledAttr}>
+                        <option value="running" ${isRunning?'selected':''}>${t('status_running')}</option>
+                        <option value="stopped" ${!isRunning?'selected':''}>${t('status_stopped')}</option>
+                    </select>
+                </td>
+                ${deleteHtml}
+            `;
+            return tr;
+        }
+
+        // 当修改日期时，实时更新徽章
+        // 覆盖原来的 markDirty，增加 updateRowBadge 逻辑
+        window.markDirty = function(el) {
+            const tr = el.closest('tr');
+            tr.classList.add('changed');
+            el.classList.remove('invalid');
+
+            // 如果修改的是日期或状态，尝试更新徽章
+            if (el.name === 'date' || el.name === 'status') {
+                const dateVal = tr.querySelector('[name="date"]').value;
+                const statusVal = tr.querySelector('[name="status"]').value;
+                // 找到该单元格里的 .time-badge 并替换
+                const badgeEl = tr.querySelector('.time-badge');
+                if (badgeEl) {
+                    badgeEl.outerHTML = renderTimeBadge(dateVal, statusVal);
+                } else {
+                    // 如果原本没有(比如新建行)，插入进去
+                    const td = tr.querySelector('td:first-child');
+                    td.insertAdjacentHTML('beforeend', renderTimeBadge(dateVal, statusVal));
+                }
+
+                // 更新行左侧边框颜色
+                tr.classList.remove('status-running', 'status-stopped');
+                tr.classList.add(statusVal === 'running' ? 'status-running' : 'status-stopped');
+            }
+
+            updateSaveBarState();
+        }
+
+        function addNewRow() {
+            if (!hasPerm(PERM_MANAGE_TASKS)) {
+                showToast(t('msg_no_perm_add'), 'error');
+                return;
+            }
+            const today = new Date().toISOString().split('T')[0];
+            const tr = createRow({ trigger_datetime: today, from_number: phoneNumber || '' });
+            document.getElementById('tableBody').prepend(tr);
+            updateSaveBarState();
+        }
+
+        // 权限拦截 + 异步 Confirm
+        async function removeRow(btn) {
+            if (!hasPerm(PERM_MANAGE_TASKS)) {
+                showToast(t('msg_no_perm_del'), 'error');
+                return;
+            }
+
+            const confirmed = await showConfirm(t('msg_confirm_del_title'), t('msg_confirm_del_body'));
+            if(confirmed) {
+                btn.closest('tr').remove();
+                updateSaveBarState();
+            }
+        }
+
+        window.markDirty = function(el) {
+            el.closest('tr').classList.add('changed');
+            // 如果用户开始修改，移除之前的错误标记
+            el.classList.remove('invalid');
+            updateSaveBarState();
+        }
+
+        // 重新计算是否显示保存条
+        function updateSaveBarState() {
+            const rows = document.querySelectorAll('#tableBody tr');
+            let add=0, mod=0;
+            rows.forEach(tr => { if(!tr.dataset.id) add++; else if(tr.classList.contains('changed')) mod++; });
+            const del = originalData.length - (rows.length - add);
+
+            const totalChanges = add + mod + del;
+            const bar = document.getElementById('saveBar');
+
+            if (totalChanges > 0) {
+                bar.classList.add('visible');
+                document.getElementById('saveInfo').textContent = `${t('msg_changes')} +${add} ~${mod} -${del}`;
+            } else {
+                bar.classList.remove('visible');
+            }
+        }
+
+        // 权限拦截 + 异步处理
+        async function saveAllChanges() {
+            if (!hasPerm(PERM_MANAGE_TASKS)) {
+                showToast(t('msg_no_perm_edit'), 'error');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true; saveBtn.textContent = '保存中...';
+
+            // 封装 API 调用，统一处理错误
+            const apiCall = async (url, method, data) => {
+                const res = await fetch(url, {
+                    method: method,
+                    credentials: 'include',
+                    headers: {'Content-Type':'application/json'},
+                    body: data ? JSON.stringify(data) : undefined
+                });
+
+                // 无论成功失败，都解析 JSON
+                const json = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    // 优先使用 code 翻译 -> 其次使用后端 error 文本 -> 最后使用 HTTP 状态文本
+                    const msg = json.code ? t(json.code) : (json.error || `Error ${res.status}: ${res.statusText}`);
+                    throw new Error(msg);
+                }
+                return json;
+            };
+
+            try {
+            const rows = Array.from(document.querySelectorAll('#tableBody tr'));
+            const currentIds = new Set();
+            const promises = [];
+            let isValid = true;
+
+            // 客户端校验逻辑，高亮错误行
+            for (const tr of rows) {
+                const inputs = {
+                    from: tr.querySelector('[name="from"]'),
+                    body: tr.querySelector('[name="body"]'),
+                    date: tr.querySelector('[name="date"]')
+                };
+
+                let rowValid = true;
+                if (!inputs.from.value) { inputs.from.classList.add('invalid'); rowValid = false; }
+                if (!inputs.body.value) { inputs.body.classList.add('invalid'); rowValid = false; }
+                if (!inputs.date.value) { inputs.date.classList.add('invalid'); rowValid = false; }
+
+                if (!rowValid) isValid = false;
+            }
+
+            if (!isValid) {
+                showToast(t('msg_fill_incomplete'), 'error');
+                //校验失败时立即恢复按钮
+                saveBtn.disabled = false; saveBtn.textContent = t('save_changes');
+                return;
+            }
+
+            for (const tr of rows) {
+                const id = tr.dataset.id ? parseInt(tr.dataset.id) : null;
+                const data = {
+                    trigger_datetime: tr.querySelector('[name="date"]').value,
+                    cycle_days: parseInt(tr.querySelector('[name="cycle"]').value) || 0,
+                    from_number: tr.querySelector('[name="from"]').value,
+                    body: tr.querySelector('[name="body"]').value,
+                    status: tr.querySelector('[name="status"]').value,
+                };
+
+                if (id) {
+                    currentIds.add(id);
+                    if (tr.classList.contains('changed')) {
+                        // 使用 apiCall 替代直接 fetch
+                        promises.push(apiCall(`${API_BASE_URL}/api/reminders/${id}`, 'PUT', data));
+                    }
+                } else {
+                    promises.push(apiCall(`${API_BASE_URL}/api/reminders`, 'POST', { from: data.from_number, body: data.body, date: data.trigger_datetime, cycle_days: data.cycle_days }));
+                }
+            }
+
+            originalData.filter(i => !currentIds.has(i.id)).forEach(i => {
+                promises.push(apiCall(`${API_BASE_URL}/api/reminders/${i.id}`, 'DELETE'));
+            });
+
+                if (promises.length === 0) {
+                    updateSaveBarState();
+                } else {
+                    await Promise.all(promises);
+                    showToast(t('msg_save_success'), 'success');
+                    // 重置排序状态
+                    sortState = { col: null, dir: 'asc' };
+                    document.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+
+                    // 重新拉取数据
+                    await fetchData(); // 等待数据拉取完成
+                }
+            } catch(e) {
+                console.error(e);
+                showToast(t('msg_save_partial_fail') + e.message, 'error');
+            } finally {
+                // 无论成功失败，最终都恢复按钮状态
+                saveBtn.disabled = false;
+                saveBtn.textContent = t('save_changes');
+            }
+        }
+
+        // ================= 浏览器定时器逻辑 =================
+        let clientTimers = [];
+
+        function toggleInfoPanel() {
+            const panel = document.getElementById('timerInfoPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function openTimerModal() {
+            const overlay = document.getElementById('timerModal');
+            overlay.style.display = 'flex';
+            overlay.offsetHeight;
+            overlay.classList.add('show');
+
+            if (!document.getElementById('tFrom').value) document.getElementById('tFrom').value = phoneNumber || '';
+            setTimerInput(new Date());
+            renderClientTimers();
+        }
+
+        function closeTimerModal() {
+            const overlay = document.getElementById('timerModal');
+            overlay.classList.remove('show');
+            setTimeout(() => { overlay.style.display = 'none'; }, 200);
+        }
+
+        function setTimerInput(dateObj) {
+            const tzOffset = dateObj.getTimezoneOffset() * 60000;
+            document.getElementById('tTime').value = new Date(dateObj.getTime() - tzOffset).toISOString().slice(0, 19);
+        }
+
+        function addSeconds(seconds) {
+            const input = document.getElementById('tTime');
+            let base = input.value ? new Date(input.value) : new Date();
+            base.setSeconds(base.getSeconds() + seconds);
+            setTimerInput(base);
+        }
+
+        function addClientTimer() {
+            const timeStr = document.getElementById('tTime').value;
+            const from = document.getElementById('tFrom').value;
+            const body = document.getElementById('tBody').value;
+
+            if (!timeStr || !from || !body) return showToast(t('msg_timer_fill_info'), 'error');
+
+            const targetTime = new Date(timeStr).getTime();
+            const creationTime = Date.now(); // 锁定创建时间
+            if (targetTime <= creationTime) return showToast(t('msg_timer_future'), 'error');
+
+            // 传入 creationTime 而不是 Date.now()
+            const timerId = setTimeout(() => executeClientTimer(creationTime, from, body), targetTime - creationTime);
+
+            clientTimers.push({
+                id: timerId,
+                timestamp: creationTime, // 使用创建时间作为唯一标识
+                targetTime, from, body,
+                status: 'pending' // pending, success, failed
+            });
+
+            // 不清空 From，只清空内容，方便连续发
+            document.getElementById('tBody').value = '';
+            renderClientTimers();
+            showToast(t('msg_timer_queued'), 'success');
+        }
+
+        // 点击列表项回填详情
+        function loadTimerDetails(index) {
+            const t = clientTimers[index];
+            if (!t) return;
+            document.getElementById('tFrom').value = t.from;
+            document.getElementById('tBody').value = t.body;
+        }
+
+        // 完整时间格式化
+        function formatFullCountdown(ms) {
+            if (ms <= 0) return "0" + t('sec');
+            const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+
+            let parts = [];
+            if (days > 0) parts.push(`${days}${t('day')}`);
+            if (hours > 0 || days > 0) parts.push(`${hours}${t('hour')}`);
+            if (minutes > 0 || hours > 0 || days > 0) parts.push(`${minutes}${t('min')}`);
+            parts.push(`${seconds}${t('sec')}`);
+            return '⏳ ' + parts.join('');
+        }
+
+        function renderClientTimers() {
+            const list = document.getElementById('activeTimersList');
+            list.innerHTML = '';
+            if (clientTimers.length === 0) { list.innerHTML = `<li style="text-align:center; color:#ccc; padding:10px;">${t('msg_timer_empty')}</li>`; return; }
+            clientTimers.sort((a,b) => a.targetTime - b.targetTime).forEach((timer, index) => {
+                const li = document.createElement('li');
+                li.className = `timer-item ${timer.status}`;
+
+                const contentSummary = timer.body.length > 15 ? timer.body.substring(0,15) + '...' : timer.body;
+
+                let statusHtml = '';
+                if (timer.status === 'success') { statusHtml = `<span class="status-text-success">${t('msg_timer_success')}</span>`; }
+                else if (timer.status === 'failed') { statusHtml = `<span class="status-text-failed">${t('msg_timer_failed')}</span>`; }
+                else { const diff = timer.targetTime - Date.now(); statusHtml = `<span class="status-text-running">${formatFullCountdown(diff)}</span>`; }
+                li.innerHTML = `
+                    <div class="timer-info" onclick="loadTimerDetails(${index})">
+                        ${statusHtml}
+                        <div style="font-size:0.85rem; color:#555; margin-top:3px;">
+                            To: <b>${timer.from}</b> | ${contentSummary}
+                        </div>
+                    </div>
+                    <button class="btn-icon" onclick="event.stopPropagation(); cancelClientTimer(${index})">×</button>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        function cancelClientTimer(index) {
+            clearTimeout(clientTimers[index].id);
+            clientTimers.splice(index, 1);
+            renderClientTimers();
+        }
+
+        async function executeClientTimer(ts, from, body) {
+            // 不立即移除，而是标记为完成
+            const timer = clientTimers.find(t => t.timestamp === ts);
+            if (!timer) return;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/send-direct`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ from_number: from, body: body })
+                });
+
+                const json = await res.json(); // 先解析
+
+                if(res.ok) {
+                    timer.status = 'success';
+                    // 3秒后移除成功项
+                    /*
+                    setTimeout(() => {
+                        const idx = clientTimers.findIndex(t => t.timestamp === ts);
+                        if (idx !== -1) clientTimers.splice(idx, 1);
+                        if (document.getElementById('timerModal').style.display !== 'none') renderClientTimers();
+                    }, 3000);
+                    */
+                } else {
+                    timer.status = 'failed';
+                    // 如果失败，弹窗提示具体原因 (翻译后的)
+                    const msg = json.code ? t(json.code) : json.error;
+                    showToast(`${t('msg_timer_failed')}: ${msg}`, 'error');
+                }
+            } catch(e) {
+                console.error(e);
+                timer.status = 'failed';
+            }
+            // 无论成功失败，都要刷新列表以显示状态
+            if (document.getElementById('timerModal').style.display !== 'none') renderClientTimers();
+        }
+
+        // 每秒刷新 UI
+        setInterval(() => {
+            // 只有当有 pending 任务且模态框打开时才刷新倒计时
+            const hasPending = clientTimers.some(t => t.status === 'pending');
+            if (document.getElementById('timerModal').style.display !== 'none' && hasPending) {
+                renderClientTimers();
+            }
+        }, 1000);
+
+        // 立即检查事件
+        if (hasPerm(PERM_TRIGGER_TASKS)) {
+            document.getElementById('checkNowBtn').addEventListener('click', async function() {
+                this.disabled = true; this.innerHTML = '⏳...';
+                try {
+                    const res = await fetch(`${API_BASE_URL}/api/reminders/check-now`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const json = await res.json();
+
+                    // 错误处理
+                    if (!res.ok) {
+                        const msg = json.code ? t(json.code) : (json.error || t('msg_trigger_failed'));
+                        throw new Error(msg);
+                    }
+
+                    // 成功处理
+                    let successMsg = json.code ? t(json.code) : json.message;
+
+                    // 特殊处理: 如果是检查完成，并且有数量，拼接到消息后面
+                    if (json.code === 'MSG_INSPECTION_COMPLETED' && json.count !== undefined) {
+                        successMsg += json.count;
+                    }
+
+                    showToast(successMsg, 'success');
+
+                    // 只有当真的有任务被发送时，才刷新表格更新状态
+                    if (json.count && json.count > 0) {
+                        fetchData();
+                    }
+
+                } catch(e) {
+                    // 失败逻辑
+                    console.error(e);
+                    showToast(e.message, 'error');
+                } finally {
+                    this.disabled = false;
+                    // 恢复按钮文字和翻译标签
+                    this.innerHTML = `⚡ <span data-i18n="trigger_now">${t('trigger_now')}</span>`;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
