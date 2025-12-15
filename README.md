@@ -6,23 +6,24 @@
 
 ![Recrong Logo](./recrong-p/favicon.png)
 
-**短信定时调度系统 | The Cloud SMS Scheduler**
+**短信调度系统 | SMS Scheduling System**
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-Cloudflare-orange)](https://workers.cloudflare.com/)
 
 [查看演示](https://recrong.yecraft.com/) | [提交反馈](https://github.com/Yecraft2025/Recrong/issues)
 
-</div>
+**免责声明**：Recrong 仅作为任务调度工具，不提供短信通道服务。用户需自行对配置的第三方 API Key 及发送的内容负责。
 
 ---
 
 ## 📖 简介 (Introduction)
 
-**Recrong** 是一个基于 Web 的轻量级短信任务调度工具。它允许用户设置一次性或周期性的短信发送任务，并通过配置第三方短信 API（如爱沙尼亚号码段 API）自动触发发送。
+**Recrong** 是一个基于 Web 的轻量级短信任务调度工具。它允许用户设置一次性或周期性的短信发送任务，并通过配置第三方短信 API 自动触发发送。
 
 项目采用 **前后端分离** 架构，完全基于 **Cloudflare Serverless** 生态构建，无需购买服务器，免费、稳定且安全。
 
-> 🐢 **设计理念**：像乌龟一样稳重、长久，但关键时刻（触发任务）像兔子一样迅速。
+> 🐢 **设计理念**：像乌龟一样稳重、长久，但关键时刻像兔子一样迅速。
 
 ## ✨ 核心特性 (Features)
 
@@ -42,7 +43,7 @@
 ## 🛠️ 技术栈 (Tech Stack)
 
 *   **Frontend**: HTML5, CSS3 (Inter Font), Vanilla JavaScript (No Framework).
-*   **Backend**: Cloudflare Workers (Node.js compact).
+*   **Backend**: Cloudflare Workers.
 *   **Database**: Cloudflare D1 (SQLite).
 *   **Deployment**: GitHub Actions & Cloudflare Pages.
 
@@ -51,22 +52,18 @@
 ```text
 .
 ├── .cloudflare/             # 部署配置文件
-├── .github/workflows/       # GitHub Actions 自动部署脚本
-├── recrong-p/               # [前端] 静态页面 (托管于 CF Pages)
-│   ├── config.js            # 前端配置文件
-│   ├── i18n.js              # 国际化语言包
+├── recrong-p/               # 静态页面
+│   ├── config.js            # 配置文件
+│   ├── i18n.js              # 中英语言
 │   └── ...
-└── recrong-w/               # [后端] Worker 代码 (托管于 CF Workers)
-    ├── src/index.js         # API 核心逻辑
-    ├── schema.sql           # 数据库结构
-    └── wrangler.toml        # Worker 配置文件
+└── recrong-w/               # Worker 代码
+│   ├── src/index.js         # API 核心逻辑
+│   ├── schema.sql           # 数据库结构
+│   └── ...
+└── wrangler.toml        # Worker 配置文件
 ```
 
-
-
-
-
-## 部署
+## 🚀 部署指南 (Deployment)
 
 ### 1. 创建 D1 数据库
 
@@ -150,3 +147,19 @@ recrong-p/config.js
 
 以确保前后端跨域请求正常工作。
 
+## 🤝 贡献 (Contributing)
+
+欢迎提交 Issue 或 Pull Request！
+
+1. Fork 本仓库。
+2. 创建新的分支 (git checkout -b feature/AmazingFeature)。
+3. 提交更改 (git commit -m 'Add some AmazingFeature')。
+4. 推送到分支 (git push origin feature/AmazingFeature)。
+5. 提交 Pull Request。
+
+## 📄 版权与协议 (License)
+
+本项目采用 **MIT 协议** 开源。
+详见 [LICENSE](https://www.google.com/url?sa=E&q=LICENSE) 文件。
+
+Copyright © 2025 Recrong. All rights reserved.
