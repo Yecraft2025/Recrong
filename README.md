@@ -4,15 +4,13 @@
 
 <div align="center">
 
-![Recrong Logo](https://github.com/Yecraft2025/Recrong/blob/main/recrong-p/favicon.png)
+![Recrong Logo](./recrong-p/favicon.png)
 
 **短信定时调度系统 | The Cloud SMS Scheduler**
-
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/Private-ROOT/recron-g)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/Platform-Cloudflare-orange)](https://workers.cloudflare.com/)
 
-[查看演示](https://recrong-ws.pages.dev/) | [提交反馈](https://github.com/Private-ROOT/recron-g/issues)
+[查看演示](https://recrong.yecraft.com/) | [提交反馈](https://github.com/Yecraft2025/Recrong/issues)
 
 </div>
 
